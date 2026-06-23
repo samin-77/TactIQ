@@ -3,14 +3,23 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
-// Connection options (default to local XAMPP MySQL setup)
+// Load environment variables from the server directory if available
+try {
+  require('dotenv').config({ path: path.join(__dirname, '../server/.env') });
+} catch (e) {
+  // Ignore
+}
+
+// Connection options (default to local setup)
 const dbConfig = {
-  host: '127.0.0.1',
-  port: 3306,
-  user: 'root',
-  password: '',
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: parseInt(process.env.DB_PORT || '3306'),
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
   multipleStatements: true
 };
+
+const dbName = process.env.DB_NAME || 'tactiq';
 
 async function setup() {
   console.log('Starting TactIQ Database Setup...');
@@ -22,12 +31,12 @@ async function setup() {
     console.log('Connected to MySQL server.');
 
     // 2. Create database if not exists
-    await connection.query('CREATE DATABASE IF NOT EXISTS tactiq CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
-    console.log('Database "tactiq" created or verified.');
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+    console.log(`Database "${dbName}" created or verified.`);
 
     // 3. Select database
-    await connection.query('USE tactiq;');
-    console.log('Selected database "tactiq".');
+    await connection.query(`USE \`${dbName}\`;`);
+    console.log(`Selected database "${dbName}".`);
 
     // 4. Read schema.sql
     const schemaPath = path.join(__dirname, 'schema.sql');

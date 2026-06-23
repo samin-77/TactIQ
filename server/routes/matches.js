@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
     res.json({ matches });
   } catch (error) {
     console.error('Error fetching matches:', error);
-    res.status(500).json({ error: 'Server error fetching matches' });
+    res.status(500).json({ error: 'Server error fetching matches', details: error.message });
   }
 });
 
