@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 export default function Login() {
   const { login } = useAuth();
@@ -21,9 +22,11 @@ export default function Login() {
 
     try {
       await login(formData.usernameOrEmail, formData.password);
+      toast.success('Login successful! Welcome back to TactIQ Arena.');
       navigate('/');
     } catch (err) {
       setError(err.message || 'Invalid credentials');
+      toast.error(err.message || 'Invalid credentials');
     } finally {
       setSubmitting(false);
     }
