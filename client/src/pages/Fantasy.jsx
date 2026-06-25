@@ -108,9 +108,32 @@ export default function Fantasy() {
     setSuccess('');
     setSubmitting(true);
 
+    if (!teamName || teamName.trim() === '') {
+      setSubmitting(false);
+      return setError('Fantasy team name is required.');
+    }
+
     if (!isValidSquad) {
       setSubmitting(false);
-      return setError('Invalid squad composition or budget exceeded');
+      if (selectedPlayers.length !== 11) {
+        return setError(`Your squad must contain exactly 11 players. Currently you have selected ${selectedPlayers.length}.`);
+      }
+      if (totalCost > 100.0) {
+        return setError(`Budget exceeded! You have spent ${totalCost.toFixed(1)}m. Max budget allowed is 100.0m.`);
+      }
+      if (squadCounts.GK !== 1) {
+        return setError(`Your squad must have exactly 1 Goalkeeper (GK). Currently you have ${squadCounts.GK}.`);
+      }
+      if (squadCounts.DF !== 4) {
+        return setError(`Your squad must have exactly 4 Defenders (DF). Currently you have ${squadCounts.DF}.`);
+      }
+      if (squadCounts.MF !== 4) {
+        return setError(`Your squad must have exactly 4 Midfielders (MF). Currently you have ${squadCounts.MF}.`);
+      }
+      if (squadCounts.FW !== 2) {
+        return setError(`Your squad must have exactly 2 Forwards (FW). Currently you have ${squadCounts.FW}.`);
+      }
+      return setError('Invalid squad composition or budget exceeded.');
     }
 
     try {
@@ -229,7 +252,7 @@ export default function Fantasy() {
                   {success && <div style={{ color: 'var(--color-green)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{success}</div>}
                   <button 
                     onClick={handleSubmitTeam} 
-                    disabled={submitting || !isValidSquad}
+                    disabled={submitting}
                     className="btn btn-primary"
                     style={{ width: '100%' }}
                   >
