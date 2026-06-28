@@ -161,7 +161,23 @@ export default function Standings() {
   }
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>Loading tournament data...</div>;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '1.5rem', padding: '3rem' }}>
+        <div className="football-loader">
+          <svg viewBox="0 0 50 50" width="60" height="60">
+            <circle cx="25" cy="25" r="22" fill="white" stroke="#333" strokeWidth="1.5" />
+            <path d="M25 3 A22 22 0 0 1 44 14 L39 19 L35 14 L30 17 Z" fill="#222" />
+            <path d="M44 14 A22 22 0 0 1 44 36 L39 31 L35 36 L30 33 Z" fill="#222" />
+            <path d="M44 36 A22 22 0 0 1 25 47 L25 41 L30 38 Z" fill="#222" />
+            <path d="M25 47 A22 22 0 0 1 6 36 L11 31 L15 36 L20 33 Z" fill="#222" />
+            <path d="M6 36 A22 22 0 0 1 6 14 L11 19 L15 14 L20 17 Z" fill="#222" />
+            <path d="M6 14 A22 22 0 0 1 25 3 L25 9 L20 12 Z" fill="#222" />
+            <circle cx="25" cy="25" r="3" fill="#333" />
+          </svg>
+        </div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', letterSpacing: '0.5px' }}>Loading tournament data...</p>
+      </div>
+    );
   }
 
   function renderBracketMatch(match, stage, stageIndex, matchIndex, compact) {

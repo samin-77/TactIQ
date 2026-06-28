@@ -87,7 +87,7 @@ function AppContent() {
         </Routes>
       </main>
       <footer className="footer">
-        <p>&copy; 2026 TactIQ - FIFA World Cup 2026 Fan & Analytics Platform</p>
+        <p>&copy; 2026 TactIQ &mdash; Made with ❤️ by Ishfak Mahbub Samin &bull; Syed Owin Efaz &bull; Sharmin Akter Mim</p>
       </footer>
     </div>
   );
