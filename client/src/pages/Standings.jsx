@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Trophy, Crown, Save, Swords, X, Check } from 'lucide-react';
+import FootballLoader from '../components/FootballLoader';
 
 const STAGE_ORDER = ['ROUND_OF_32', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL'];
 const STAGE_LABELS = {
@@ -162,12 +163,7 @@ export default function Standings() {
   }
 
   if (loading || tabLoading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '1.5rem', padding: '3rem' }}>
-        <div className="football-loader">⚽</div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', letterSpacing: '0.5px' }}>Loading tournament data...</p>
-      </div>
-    );
+    return <FootballLoader text="Loading tournament data..." />;
   }
 
   function renderBracketMatch(match, stage, stageIndex, matchIndex, compact) {

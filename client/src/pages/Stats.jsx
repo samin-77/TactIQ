@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3 } from 'lucide-react';
+import FootballLoader from '../components/FootballLoader';
 
 export default function Stats() {
   const { apiUrl } = useAuth();
@@ -76,7 +77,7 @@ export default function Stats() {
   }
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>Loading Statistics...</div>;
+    return <FootballLoader text="Loading Statistics..." />;
   }
 
   return (

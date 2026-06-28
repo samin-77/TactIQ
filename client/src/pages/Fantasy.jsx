@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Users, Trophy, Plus, Trash2, Search, CheckCircle } from 'lucide-react';
+import FootballLoader from '../components/FootballLoader';
 
 export default function Fantasy() {
   const { user, token, apiUrl } = useAuth();
@@ -177,7 +178,7 @@ export default function Fantasy() {
   }
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: 'var(--text-secondary)' }}>Loading Fantasy League...</div>;
+    return <FootballLoader text="Loading Fantasy League..." />;
   }
 
   return (
