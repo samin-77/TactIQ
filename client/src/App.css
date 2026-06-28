@@ -85,9 +85,10 @@
 }
 
 .football-loader {
+  display: inline-block;
+  font-size: 3.5rem;
   animation: footballSpin 1s linear infinite, footballBounce 0.6s ease-in-out infinite;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-  transform-origin: center center;
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.4));
 }
 
 /* Hero title */

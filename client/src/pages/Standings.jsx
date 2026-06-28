@@ -20,6 +20,7 @@ export default function Standings() {
   const [groups, setGroups] = useState({});
   const [bracket, setBracket] = useState({ ROUND_OF_32: [], ROUND_OF_16: [], QUARTER_FINAL: [], SEMI_FINAL: [], FINAL: [] });
   const [loading, setLoading] = useState(true);
+  const [tabLoading, setTabLoading] = useState(false);
   const [predictions, setPredictions] = useState({});
   const [savedPredictions, setSavedPredictions] = useState({});
   const [predictingMatch, setPredictingMatch] = useState(null);
@@ -160,21 +161,10 @@ export default function Standings() {
     return 'TBD';
   }
 
-  if (loading) {
+  if (loading || tabLoading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '1.5rem', padding: '3rem' }}>
-        <div className="football-loader">
-          <svg viewBox="0 0 50 50" width="60" height="60">
-            <circle cx="25" cy="25" r="22" fill="white" stroke="#333" strokeWidth="1.5" />
-            <path d="M25 3 A22 22 0 0 1 44 14 L39 19 L35 14 L30 17 Z" fill="#222" />
-            <path d="M44 14 A22 22 0 0 1 44 36 L39 31 L35 36 L30 33 Z" fill="#222" />
-            <path d="M44 36 A22 22 0 0 1 25 47 L25 41 L30 38 Z" fill="#222" />
-            <path d="M25 47 A22 22 0 0 1 6 36 L11 31 L15 36 L20 33 Z" fill="#222" />
-            <path d="M6 36 A22 22 0 0 1 6 14 L11 19 L15 14 L20 17 Z" fill="#222" />
-            <path d="M6 14 A22 22 0 0 1 25 3 L25 9 L20 12 Z" fill="#222" />
-            <circle cx="25" cy="25" r="3" fill="#333" />
-          </svg>
-        </div>
+        <div className="football-loader">⚽</div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', letterSpacing: '0.5px' }}>Loading tournament data...</p>
       </div>
     );
@@ -392,10 +382,10 @@ export default function Standings() {
       <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Follow the group stages standings and the road to the FIFA World Cup 2026 Final.</p>
 
       <div className="tab-container">
-        <button className={`tab-btn ${activeTab === 'standings' ? 'active' : ''}`} onClick={() => setActiveTab('standings')}>
+        <button className={`tab-btn ${activeTab === 'standings' ? 'active' : ''}`} onClick={() => { setActiveTab('standings'); setTabLoading(true); setTimeout(() => setTabLoading(false), 400); }}>
           Group Standings
         </button>
-        <button className={`tab-btn ${activeTab === 'bracket' ? 'active' : ''}`} onClick={() => setActiveTab('bracket')}>
+        <button className={`tab-btn ${activeTab === 'bracket' ? 'active' : ''}`} onClick={() => { setActiveTab('bracket'); setTabLoading(true); setTimeout(() => setTabLoading(false), 400); }}>
           Bracket
         </button>
       </div>
