@@ -168,8 +168,8 @@ router.post('/seed-groups', async (req, res) => {
     for (const nt of newTeams) {
       if (!teamMap[nt.code]) {
         const result = await query(
-          'INSERT INTO teams (name, code, group_id, flag_url) VALUES (?, ?, ?, ?)',
-          [nt.name, nt.code, 'Z', nt.flag_url]
+          'INSERT INTO teams (name, code, group_id, flag_url, historical_titles, historical_appearances, historical_wins, historical_goals) VALUES (?, ?, ?, ?, 0, 0, 0, 0)',
+          [nt.name, nt.code, 'A', nt.flag_url]
         );
         teamMap[nt.code] = result.insertId;
         inserted.push(nt.code);
