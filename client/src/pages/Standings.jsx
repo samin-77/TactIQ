@@ -336,7 +336,7 @@ export default function Standings() {
               const isPicked = predictions[predictingMatch.match?.id]?.predicted_winner_id === tid;
               return (
                 <div key={tid} onClick={() => {
-                  const m = match || { id: `virtual-${stage}-${predictingMatch.matchIndex}`, home_team_id: teams[0].id, away_team_id: teams[1].id };
+                  const m = match || { id: `${VIRTUAL_PREFIX}${stage}_${predictingMatch.matchIndex}`, home_team_id: teams[0].id, away_team_id: teams[1].id };
                   const wTeam = match ? nameMap[tid] : teams[idx];
                   const wInfo = { predicted_winner_id: tid, team_name: info?.name || wTeam?.name, team_code: info?.code || wTeam?.code, flag_url: info?.flag || wTeam?.flag_url };
                   handlePickWinner(m, stage, predictingMatch.matchIndex, tid, { ...wInfo, match_id: m.id });
