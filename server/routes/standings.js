@@ -103,4 +103,117 @@ router.get('/bracket', async (req, res) => {
   }
 });
 
+// POST /api/standings/seed-groups
+// Replaces all group data with exact teams, groups, and match scores from user spec
+router.post('/seed-groups', async (req, res) => {
+  try {
+    // 5 new teams not yet in DB
+    const newTeams = [
+      { name: 'Czechia', code: 'CZE', group_id: 'A', flag_url: 'https://flagcdn.com/w160/cz.png' },
+      { name: 'Haiti', code: 'HAI', group_id: 'C', flag_url: 'https://flagcdn.com/w160/ht.png' },
+      { name: 'Curaçao', code: 'CUR', group_id: 'E', flag_url: 'https://flagcdn.com/w160/cw.png' },
+      { name: 'New Zealand', code: 'NZL', group_id: 'G', flag_url: 'https://flagcdn.com/w160/nz.png' },
+      { name: 'Jordan', code: 'JOR', group_id: 'J', flag_url: 'https://flagcdn.com/w160/jo.png' },
+    ];
+
+    // All 48 teams with their new group assignments
+    const groupAssignments = {
+      'MEX': 'A', 'RSA': 'A', 'KOR': 'A', 'CZE': 'A',
+      'SUI': 'B', 'CAN': 'B', 'BIH': 'B', 'QAT': 'B',
+      'BRA': 'C', 'MAR': 'C', 'SCO': 'C', 'HAI': 'C',
+      'USA': 'D', 'PAR': 'D', 'AUS': 'D', 'TUR': 'D',
+      'GER': 'E', 'CUR': 'E', 'CIV': 'E', 'ECU': 'E',
+      'NED': 'F', 'JPN': 'F', 'SWE': 'F', 'TUN': 'F',
+      'BEL': 'G', 'EGY': 'G', 'IRN': 'G', 'NZL': 'G',
+      'ESP': 'H', 'CPV': 'H', 'KSA': 'H', 'URU': 'H',
+      'FRA': 'I', 'SEN': 'I', 'IRQ': 'I', 'NOR': 'I',
+      'ARG': 'J', 'ALG': 'J', 'AUT': 'J', 'JOR': 'J',
+      'COL': 'K', 'UZB': 'K', 'COD': 'K', 'POR': 'K',
+      'ENG': 'L', 'CRO': 'L', 'GHA': 'L', 'PAN': 'L',
+    };
+
+    // Unused teams (set group_id to NULL)
+    const unusedTeams = ['CMR','MLI','POL','CHI','PER','DEN','NGA','CRC','WAL','HON','UKR','JAM'];
+
+    // Match scores per group: [home_team, away_team, home_score, away_score]
+    const groupMatches = {
+      A: [['MEX','RSA',2,0],['KOR','CZE',2,1],['MEX','KOR',1,0],['RSA','CZE',1,1],['MEX','CZE',3,0],['RSA','KOR',1,0]],
+      B: [['SUI','CAN',0,0],['BIH','QAT',0,0],['SUI','BIH',3,1],['CAN','QAT',6,0],['SUI','QAT',4,2],['CAN','BIH',2,3]],
+      C: [['BRA','MAR',1,1],['SCO','HAI',1,0],['BRA','SCO',2,0],['MAR','HAI',3,2],['BRA','HAI',4,0],['MAR','SCO',2,0]],
+      D: [['USA','PAR',4,0],['AUS','TUR',1,0],['USA','AUS',2,1],['PAR','TUR',2,0],['USA','TUR',2,3],['PAR','AUS',0,0]],
+      E: [['GER','CUR',6,1],['CIV','ECU',1,0],['GER','CIV',2,0],['CUR','ECU',0,0],['GER','ECU',1,2],['CUR','CIV',0,3]],
+      F: [['NED','JPN',0,0],['SWE','TUN',2,0],['NED','SWE',4,2],['JPN','TUN',4,0],['NED','TUN',6,2],['JPN','SWE',3,3]],
+      G: [['BEL','EGY',0,0],['IRN','NZL',1,1],['BEL','IRN',0,0],['EGY','NZL',3,1],['BEL','NZL',6,2],['EGY','IRN',2,2]],
+      H: [['ESP','CPV',0,0],['KSA','URU',1,1],['ESP','KSA',4,0],['CPV','URU',2,2],['ESP','URU',1,0],['CPV','KSA',0,0]],
+      I: [['FRA','SEN',1,0],['IRQ','NOR',0,2],['FRA','IRQ',4,0],['SEN','NOR',2,4],['FRA','NOR',5,2],['SEN','IRQ',6,1]],
+      J: [['ARG','ALG',3,0],['AUT','JOR',3,1],['ARG','AUT',2,0],['ALG','JOR',2,1],['ARG','JOR',3,1],['ALG','AUT',3,3]],
+      K: [['COL','UZB',2,0],['COD','POR',0,0],['COL','COD',1,0],['UZB','POR',0,5],['COL','POR',1,1],['UZB','COD',2,4]],
+      L: [['ENG','CRO',4,2],['GHA','PAN',1,0],['ENG','GHA',0,0],['CRO','PAN',1,0],['ENG','PAN',2,0],['CRO','GHA',2,1]],
+    };
+
+    // Get all existing teams
+    const allTeams = await query('SELECT id, code FROM teams');
+    const teamMap = {};
+    for (const t of allTeams) teamMap[t.code] = t.id;
+
+    // Insert new teams
+    const inserted = [];
+    for (const nt of newTeams) {
+      if (!teamMap[nt.code]) {
+        const result = await query(
+          'INSERT INTO teams (name, code, group_id, flag_url) VALUES (?, ?, ?, ?)',
+          [nt.name, nt.code, nt.group_id, nt.flag_url]
+        );
+        teamMap[nt.code] = result.insertId;
+        inserted.push(nt.code);
+      }
+    }
+
+    // Update group_ids for all 48 teams
+    for (const [code, gid] of Object.entries(groupAssignments)) {
+      if (teamMap[code]) {
+        await query('UPDATE teams SET group_id = ? WHERE id = ?', [gid, teamMap[code]]);
+      }
+    }
+
+    // Nullify group_ids for unused teams
+    for (const code of unusedTeams) {
+      if (teamMap[code]) {
+        await query('UPDATE teams SET group_id = NULL WHERE id = ?', [teamMap[code]]);
+      }
+    }
+
+    // Delete existing GROUP matches
+    await query('DELETE FROM matches WHERE stage = ?', ['GROUP']);
+
+    // Insert 72 completed group matches
+    const kickoff = new Date();
+    kickoff.setDate(kickoff.getDate() - 1);
+    let matchCount = 0;
+    for (const [group, matches] of Object.entries(groupMatches)) {
+      for (let i = 0; i < matches.length; i++) {
+        const [homeCode, awayCode, hs, as] = matches[i];
+        const mtime = new Date(kickoff.getTime() + matchCount * 60000);
+        await query(
+          'INSERT INTO matches (home_team_id, away_team_id, kickoff_time, home_score, away_score, status, stage, group_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+          [teamMap[homeCode], teamMap[awayCode], mtime, hs, as, 'COMPLETED', 'GROUP', group]
+        );
+        matchCount++;
+      }
+    }
+
+    // Recalculate standings
+    await query('CALL calculate_standings()');
+
+    res.json({
+      message: 'Groups seeded successfully',
+      teamsInserted: inserted,
+      matchesInserted: matchCount,
+    });
+  } catch (error) {
+    console.error('Error seeding groups:', error);
+    res.status(500).json({ error: 'Server error seeding groups' });
+  }
+});
+
 module.exports = router;
