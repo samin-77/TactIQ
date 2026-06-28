@@ -107,13 +107,20 @@ router.get('/bracket', async (req, res) => {
 // Replaces all group data with exact teams, groups, and match scores from user spec
 router.post('/seed-groups', async (req, res) => {
   try {
-    // 5 new teams not yet in DB
+    // All teams that may not yet be in DB (5 new + 7 original extras)
     const newTeams = [
-      { name: 'Czechia', code: 'CZE', group_id: 'A', flag_url: 'https://flagcdn.com/w160/cz.png' },
-      { name: 'Haiti', code: 'HAI', group_id: 'C', flag_url: 'https://flagcdn.com/w160/ht.png' },
-      { name: 'Curaçao', code: 'CUR', group_id: 'E', flag_url: 'https://flagcdn.com/w160/cw.png' },
-      { name: 'New Zealand', code: 'NZL', group_id: 'G', flag_url: 'https://flagcdn.com/w160/nz.png' },
-      { name: 'Jordan', code: 'JOR', group_id: 'J', flag_url: 'https://flagcdn.com/w160/jo.png' },
+      { name: 'Czechia', code: 'CZE', flag_url: 'https://flagcdn.com/w160/cz.png' },
+      { name: 'Haiti', code: 'HAI', flag_url: 'https://flagcdn.com/w160/ht.png' },
+      { name: 'Curaçao', code: 'CUR', flag_url: 'https://flagcdn.com/w160/cw.png' },
+      { name: 'New Zealand', code: 'NZL', flag_url: 'https://flagcdn.com/w160/nz.png' },
+      { name: 'Jordan', code: 'JOR', flag_url: 'https://flagcdn.com/w160/jo.png' },
+      { name: 'South Africa', code: 'RSA', flag_url: 'https://flagcdn.com/w160/za.png' },
+      { name: 'Paraguay', code: 'PAR', flag_url: 'https://flagcdn.com/w160/py.png' },
+      { name: 'Ivory Coast', code: 'CIV', flag_url: 'https://flagcdn.com/w160/ci.png' },
+      { name: 'Norway', code: 'NOR', flag_url: 'https://flagcdn.com/w160/no.png' },
+      { name: 'DR Congo', code: 'COD', flag_url: 'https://flagcdn.com/w160/cd.png' },
+      { name: 'Bosnia and Herzegovina', code: 'BIH', flag_url: 'https://flagcdn.com/w160/ba.png' },
+      { name: 'Cape Verde', code: 'CPV', flag_url: 'https://flagcdn.com/w160/cv.png' },
     ];
 
     // All 48 teams with their new group assignments
@@ -156,13 +163,13 @@ router.post('/seed-groups', async (req, res) => {
     const teamMap = {};
     for (const t of allTeams) teamMap[t.code] = t.id;
 
-    // Insert new teams
+    // Insert missing teams (group_id will be set by groupAssignments loop)
     const inserted = [];
     for (const nt of newTeams) {
       if (!teamMap[nt.code]) {
         const result = await query(
-          'INSERT INTO teams (name, code, group_id, flag_url) VALUES (?, ?, ?, ?)',
-          [nt.name, nt.code, nt.group_id, nt.flag_url]
+          'INSERT INTO teams (name, code, flag_url) VALUES (?, ?, ?)',
+          [nt.name, nt.code, nt.flag_url]
         );
         teamMap[nt.code] = result.insertId;
         inserted.push(nt.code);
