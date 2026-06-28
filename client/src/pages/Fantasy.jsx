@@ -164,6 +164,11 @@ export default function Fantasy() {
       setMyTeam(ftData.team);
       setMyPicks(ftData.picks || []);
       setSelectedPlayers(ftData.picks?.map(p => p.id) || []);
+      
+      // Refresh leaderboard
+      const lbRes = await fetch(`${apiUrl}/fantasy/leaderboard`);
+      const lbData = await lbRes.json();
+      setLeaderboard(lbData.leaderboard || []);
     } catch (err) {
       setError(err.message);
     } finally {

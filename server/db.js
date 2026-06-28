@@ -16,7 +16,7 @@ const pool = mysql.createPool({
 // Parameterized query helper to enforce raw SQL and parameterized calls
 async function query(sql, params = []) {
   try {
-    const [results] = await pool.execute(sql, params);
+    const [results] = await pool.query(sql, params);
     return results;
   } catch (error) {
     console.error(`Database Query Error: [SQL: ${sql}]`, error);
@@ -32,7 +32,7 @@ async function transaction(callback) {
     
     // Create a transaction query context
     const txQuery = async (sql, params = []) => {
-      const [results] = await connection.execute(sql, params);
+      const [results] = await connection.query(sql, params);
       return results;
     };
 
