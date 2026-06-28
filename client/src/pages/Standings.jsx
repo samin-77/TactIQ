@@ -23,7 +23,6 @@ export default function Standings() {
   const [groups, setGroups] = useState({});
   const [bracket, setBracket] = useState({ ROUND_OF_32: [], ROUND_OF_16: [], QUARTER_FINAL: [], SEMI_FINAL: [], FINAL: [] });
   const [loading, setLoading] = useState(true);
-  const [predictMode, setPredictMode] = useState(false);
   const [predictions, setPredictions] = useState({});
   const [savedPredictions, setSavedPredictions] = useState({});
   const [predictingMatch, setPredictingMatch] = useState(null);
@@ -56,7 +55,7 @@ export default function Standings() {
   }, []);
 
   useEffect(() => {
-    if (!user || !predictMode) return;
+    if (!user || activeTab !== 'bracket') return;
     fetch(`${apiUrl}/bracket/predictions`, {
       headers: { 'Authorization': `Bearer ${token}` }
     }).then(r => r.json()).then(data => {
@@ -65,7 +64,7 @@ export default function Standings() {
       setPredictions(map);
       setSavedPredictions(JSON.parse(JSON.stringify(map)));
     }).catch(() => {});
-  }, [predictMode, user]);
+  }, [activeTab, user]);
 
   function getStatusBadge(status) {
     if (status === 'LIVE') return <span className="badge badge-live">LIVE</span>;
@@ -166,8 +165,7 @@ export default function Standings() {
     const isAwayWinner = predictedWinnerId && match?.away_team_id === predictedWinnerId;
 
     const advancing = getAdvancingTeams(stage, matchIndex);
-    const isVirtual = !match;
-    const canPredictInMode = predictMode && (match || advancing.length === 2);
+    const canPredictInMode = user && (match || advancing.length === 2);
 
     return (
       <div key={match?.id || `slot-${stage}-${matchIndex}`}>
@@ -176,19 +174,19 @@ export default function Standings() {
             padding: '0.65rem', cursor: canPredictInMode ? 'pointer' : 'pointer',
             display: 'flex', flexDirection: 'column', gap: '0.4rem',
             borderLeft: `3px solid ${predictedWinnerId ? 'var(--color-gold)' : match?.status === 'COMPLETED' ? 'var(--color-green)' : 'var(--color-border)'}`,
-            opacity: predictMode && !canPredictInMode ? 0.5 : 1,
+            opacity: !canPredictInMode && user ? 0.5 : 1,
             position: 'relative', transition: 'all 0.2s',
             background: predictedWinnerId ? 'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(20,26,51,0.9))' : ''
           }}
           onClick={() => {
-            if (predictMode) setPredictingMatch({ match, stage, matchIndex });
+            if (user) setPredictingMatch({ match, stage, matchIndex });
             else navigate(`/matches/${match.id}`);
           }}>
             {predictedWinnerId && <Crown size={14} style={{ position: 'absolute', top: 4, right: 6, color: 'var(--color-gold)' }} />}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.7rem', color: 'var(--text-muted)' }}>
               <span>{new Date(match.kickoff_time).toLocaleDateString()}</span>
-              {!predictMode && getStatusBadge(match.status)}
-              {predictMode && <span style={{ fontSize: '0.65rem', color: predictedWinnerId ? 'var(--color-gold)' : 'var(--text-muted)' }}>{predictedWinnerId ? 'Predicted' : 'Pick winner'}</span>}
+              {!user && getStatusBadge(match.status)}
+              {user && <span style={{ fontSize: '0.65rem', color: predictedWinnerId ? 'var(--color-gold)' : 'var(--text-muted)' }}>{predictedWinnerId ? 'Predicted' : 'Pick winner'}</span>}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1 }}>
@@ -196,7 +194,7 @@ export default function Standings() {
                 <span style={{ fontWeight: isHomeWinner ? 700 : 400, color: isHomeWinner ? 'var(--color-gold)' : 'var(--text-primary)', fontSize: '0.85rem' }}>{match.home_team_code}</span>
               </div>
               <span style={{ fontWeight: 700, color: predictedWinnerId ? 'var(--color-gold)' : 'var(--text-primary)', fontSize: '0.9rem' }}>
-                {match.home_score !== null ? match.home_score : predictMode && isHomeWinner ? <Check size={14} /> : '-'}
+                {match.home_score !== null ? match.home_score : user && isHomeWinner ? <Check size={14} /> : '-'}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -205,11 +203,11 @@ export default function Standings() {
                 <span style={{ fontWeight: isAwayWinner ? 700 : 400, color: isAwayWinner ? 'var(--color-gold)' : 'var(--text-primary)', fontSize: '0.85rem' }}>{match.away_team_code}</span>
               </div>
               <span style={{ fontWeight: 700, color: predictedWinnerId ? 'var(--color-gold)' : 'var(--text-primary)', fontSize: '0.9rem' }}>
-                {match.away_score !== null ? match.away_score : predictMode && isAwayWinner ? <Check size={14} /> : '-'}
+                {match.away_score !== null ? match.away_score : user && isAwayWinner ? <Check size={14} /> : '-'}
               </span>
             </div>
           </div>
-        ) : !predictMode ? (
+        ) : !user ? (
           <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', border: '1px dashed var(--color-border-glass)', borderRadius: 'var(--radius-md)', fontSize: '0.8rem' }}>
             TBD
           </div>
@@ -316,10 +314,7 @@ export default function Standings() {
           Group Standings
         </button>
         <button className={`tab-btn ${activeTab === 'bracket' ? 'active' : ''}`} onClick={() => setActiveTab('bracket')}>
-          Knockout Bracket
-        </button>
-        <button className={`tab-btn ${activeTab === 'predict' ? 'active' : ''}`} onClick={() => { setActiveTab('predict'); setPredictMode(true); }}>
-          Predict Bracket
+          Bracket
         </button>
       </div>
 
@@ -366,7 +361,7 @@ export default function Standings() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {activeTab === 'predict' && (
+          {user && activeTab === 'bracket' && (
             <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem 1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Swords size={20} color="var(--color-gold)" />
@@ -385,7 +380,7 @@ export default function Standings() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '2rem', overflowX: 'auto', paddingBottom: '2rem', minHeight: activeTab === 'predict' ? '600px' : '500px' }}>
+          <div style={{ display: 'flex', gap: '2rem', overflowX: 'auto', paddingBottom: '2rem', minHeight: '600px' }}>
             {STAGE_ORDER.map((stageKey) => {
               const stageMatches = bracket[stageKey] || [];
               const maxSlots = BRACKET_SIZE[stageKey];
@@ -409,7 +404,7 @@ export default function Standings() {
             })}
           </div>
 
-          {activeTab === 'predict' && !user && (
+          {activeTab === 'bracket' && !user && (
             <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
               <p style={{ color: 'var(--text-secondary)' }}>Please <Link to="/login">login</Link> to predict the bracket.</p>
             </div>

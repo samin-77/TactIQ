@@ -535,27 +535,22 @@ async function setup() {
       }
     }
     
-    // Seed sample knockout matches (bracket) - Upcoming
-    // 16 Matches for Round of 32: Let's create placeholder knockout matches
-    // R32 matches kickoff 1 week from now
+    // Seed knockout matches (bracket) - 16 Round of 32 matches
     const r32Date = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    // Let's seed 4 upcoming Round of 32 matches to demonstrate bracket visualizer
-    const teamsList = Object.values(teamIdMap);
-    for (let i = 0; i < 4; i++) {
-      const team1 = teamsList[i * 2];
-      const team2 = teamsList[i * 2 + 1];
+    // R32 pairings using available teams (some substituted from user's requested list)
+    const r32Pairs = [
+      ['CAN', 'URU'], ['BRA', 'JPN'], ['GER', 'CHI'], ['NED', 'MAR'],
+      ['POL', 'PER'], ['FRA', 'SWE'], ['MEX', 'ECU'], ['ENG', 'NGA'],
+      ['BEL', 'SEN'], ['USA', 'SCO'], ['ESP', 'AUT'], ['POR', 'CRO'],
+      ['SUI', 'ALG'], ['EGY', 'AUS'], ['ARG', 'DEN'], ['COL', 'GHA']
+    ];
+    for (const [homeCode, awayCode] of r32Pairs) {
       await connection.query(
         'INSERT INTO matches (home_team_id, away_team_id, kickoff_time, status, stage) VALUES (?, ?, ?, ?, ?);',
-        [team1, team2, r32Date, 'UPCOMING', 'ROUND_OF_32']
+        [teamIdMap[homeCode], teamIdMap[awayCode], r32Date, 'UPCOMING', 'ROUND_OF_32']
       );
     }
-    // Wait! Let's double check matches schema stages:
-    // stage ENUM('GROUP', 'ROUND_OF_32', 'ROUND_OF_16', 'QUARTER_FINAL', 'SEMI_FINAL', 'FINAL')
-    // Ah! Stage should be 'ROUND_OF_32', let's verify if my setup.js aligns:
-    // It should be 'ROUND_OF_32'. I will check my insert query above: I used 'ROUND_32', let's correct it to 'ROUND_OF_32'!
-    // Yes! Let's fix that.
-
-    console.log('Seeded match fixtures.');
+    console.log('Seeded 16 Round of 32 matches.');
 
     // 7. Calculate Group Standings
     console.log('Calculating initial standings cache...');
