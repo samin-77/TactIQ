@@ -168,8 +168,8 @@ router.post('/seed-groups', async (req, res) => {
     for (const nt of newTeams) {
       if (!teamMap[nt.code]) {
         const result = await query(
-          'INSERT INTO teams (name, code, flag_url) VALUES (?, ?, ?)',
-          [nt.name, nt.code, nt.flag_url]
+          'INSERT INTO teams (name, code, group_id, flag_url) VALUES (?, ?, ?, ?)',
+          [nt.name, nt.code, 'Z', nt.flag_url]
         );
         teamMap[nt.code] = result.insertId;
         inserted.push(nt.code);
@@ -180,13 +180,6 @@ router.post('/seed-groups', async (req, res) => {
     for (const [code, gid] of Object.entries(groupAssignments)) {
       if (teamMap[code]) {
         await query('UPDATE teams SET group_id = ? WHERE id = ?', [gid, teamMap[code]]);
-      }
-    }
-
-    // Nullify group_ids for unused teams
-    for (const code of unusedTeams) {
-      if (teamMap[code]) {
-        await query('UPDATE teams SET group_id = NULL WHERE id = ?', [teamMap[code]]);
       }
     }
 
