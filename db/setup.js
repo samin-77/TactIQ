@@ -244,7 +244,16 @@ async function setup() {
       { name: 'Netherlands', code: 'NED', group_id: 'L', flag_url: 'https://flagcdn.com/w160/nl.png', historical_titles: 0, historical_appearances: 11, historical_wins: 32, historical_goals: 96 },
       { name: 'Turkey', code: 'TUR', group_id: 'L', flag_url: 'https://flagcdn.com/w160/tr.png', historical_titles: 0, historical_appearances: 2, historical_wins: 5, historical_goals: 20 },
       { name: 'Ukraine', code: 'UKR', group_id: 'L', flag_url: 'https://flagcdn.com/w160/ua.png', historical_titles: 0, historical_appearances: 1, historical_wins: 2, historical_goals: 5 },
-      { name: 'Jamaica', code: 'JAM', group_id: 'L', flag_url: 'https://flagcdn.com/w160/jm.png', historical_titles: 0, historical_appearances: 1, historical_wins: 1, historical_goals: 3 }
+      { name: 'Jamaica', code: 'JAM', group_id: 'L', flag_url: 'https://flagcdn.com/w160/jm.png', historical_titles: 0, historical_appearances: 1, historical_wins: 1, historical_goals: 3 },
+
+      // Additional teams for R32 (groups extended)
+      { name: 'South Africa', code: 'RSA', group_id: 'A', flag_url: 'https://flagcdn.com/w160/za.png', historical_titles: 0, historical_appearances: 3, historical_wins: 2, historical_goals: 11 },
+      { name: 'Paraguay', code: 'PAR', group_id: 'I', flag_url: 'https://flagcdn.com/w160/py.png', historical_titles: 0, historical_appearances: 8, historical_wins: 7, historical_goals: 30 },
+      { name: 'Ivory Coast', code: 'CIV', group_id: 'C', flag_url: 'https://flagcdn.com/w160/ci.png', historical_titles: 0, historical_appearances: 3, historical_wins: 4, historical_goals: 14 },
+      { name: 'Norway', code: 'NOR', group_id: 'F', flag_url: 'https://flagcdn.com/w160/no.png', historical_titles: 0, historical_appearances: 3, historical_wins: 5, historical_goals: 18 },
+      { name: 'DR Congo', code: 'COD', group_id: 'E', flag_url: 'https://flagcdn.com/w160/cd.png', historical_titles: 0, historical_appearances: 0, historical_wins: 0, historical_goals: 0 },
+      { name: 'Bosnia and Herzegovina', code: 'BIH', group_id: 'J', flag_url: 'https://flagcdn.com/w160/ba.png', historical_titles: 0, historical_appearances: 1, historical_wins: 0, historical_goals: 4 },
+      { name: 'Cape Verde', code: 'CPV', group_id: 'B', flag_url: 'https://flagcdn.com/w160/cv.png', historical_titles: 0, historical_appearances: 1, historical_wins: 1, historical_goals: 2 }
     ];
 
     const teamIdMap = {}; // Maps code to DB id
@@ -255,7 +264,7 @@ async function setup() {
       );
       teamIdMap[t.code] = res.insertId;
     }
-    console.log('48 Teams seeded.');
+    console.log('55 Teams seeded.');
 
     // Seed Users
     const salt = await bcrypt.genSalt(10);
@@ -537,12 +546,12 @@ async function setup() {
     
     // Seed knockout matches (bracket) - 16 Round of 32 matches
     const r32Date = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    // R32 pairings using available teams (some substituted from user's requested list)
+    // R32 pairings — exact matchups requested
     const r32Pairs = [
-      ['CAN', 'URU'], ['BRA', 'JPN'], ['GER', 'CHI'], ['NED', 'MAR'],
-      ['POL', 'PER'], ['FRA', 'SWE'], ['MEX', 'ECU'], ['ENG', 'NGA'],
-      ['BEL', 'SEN'], ['USA', 'SCO'], ['ESP', 'AUT'], ['POR', 'CRO'],
-      ['SUI', 'ALG'], ['EGY', 'AUS'], ['ARG', 'DEN'], ['COL', 'GHA']
+      ['RSA', 'CAN'], ['BRA', 'JPN'], ['GER', 'PAR'], ['NED', 'MAR'],
+      ['CIV', 'NOR'], ['FRA', 'SWE'], ['MEX', 'ECU'], ['ENG', 'COD'],
+      ['BEL', 'SEN'], ['USA', 'BIH'], ['ESP', 'AUT'], ['POR', 'CRO'],
+      ['SUI', 'ALG'], ['EGY', 'AUS'], ['ARG', 'CPV'], ['COL', 'GHA']
     ];
     for (const [homeCode, awayCode] of r32Pairs) {
       await connection.query(
