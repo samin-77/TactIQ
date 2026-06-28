@@ -109,6 +109,7 @@ body::before {
 }
 
 [data-theme="light"] .navbar {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 250, 0.95) 100%);
   border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -195,6 +196,7 @@ body::before {
 }
 
 [data-theme="light"] .footer {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.03) 0%, transparent 100%);
   border-top-color: rgba(0, 0, 0, 0.08);
 }
 
