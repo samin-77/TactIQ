@@ -133,18 +133,16 @@ router.get('/seed-r32', async (req, res) => {
     const allTeams = await query('SELECT id, code FROM teams');
     for (const t of allTeams) teamMap[t.code] = t.id;
 
-    const existingR32 = await query('SELECT COUNT(*) as cnt FROM matches WHERE stage = ?', ['ROUND_OF_32']);
-    if (parseInt(existingR32[0].cnt) < 16) {
-      const r32Date = new Date();
-      r32Date.setDate(r32Date.getDate() + 7);
+    await query('DELETE FROM matches WHERE stage = ?', ['ROUND_OF_32']);
+    const r32Date = new Date();
+    r32Date.setDate(r32Date.getDate() + 7);
 
-      for (const [homeCode, awayCode] of r32Pairs) {
-        if (teamMap[homeCode] && teamMap[awayCode]) {
-          await query(
-            'INSERT INTO matches (home_team_id, away_team_id, kickoff_time, status, stage) VALUES (?, ?, ?, ?, ?)',
-            [teamMap[homeCode], teamMap[awayCode], r32Date, 'UPCOMING', 'ROUND_OF_32']
-          );
-        }
+    for (const [homeCode, awayCode] of r32Pairs) {
+      if (teamMap[homeCode] && teamMap[awayCode]) {
+        await query(
+          'INSERT IGNORE INTO matches (home_team_id, away_team_id, kickoff_time, status, stage) VALUES (?, ?, ?, ?, ?)',
+          [teamMap[homeCode], teamMap[awayCode], r32Date, 'UPCOMING', 'ROUND_OF_32']
+        );
       }
     }
 
