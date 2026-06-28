@@ -385,38 +385,62 @@ export default function Standings() {
       </div>
 
       {activeTab === 'standings' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '2rem' }}>
           {Object.keys(groups).map((groupId) => (
-            <div key={groupId} className="card" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div key={groupId} className="card animate-fade-in-up" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <h3 style={{ color: 'var(--color-gold)', borderBottom: '1px solid var(--color-border-glass)', paddingBottom: '0.5rem', fontSize: '1.25rem' }}>
                 Group {groupId}
               </h3>
               <div className="table-container" style={{ border: 'none' }}>
-                <table className="custom-table" style={{ fontSize: '0.85rem' }}>
+                <table className="custom-table" style={{ fontSize: '0.8rem' }}>
                   <thead>
                     <tr>
-                      <th style={{ padding: '0.5rem 0.25rem' }}>Pos</th>
-                      <th style={{ padding: '0.5rem 0.25rem' }}>Team</th>
-                      <th style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>Pl</th>
-                      <th style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>GD</th>
-                      <th style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>Pts</th>
+                      <th style={{ padding: '0.4rem 0.25rem', width: '28px' }}>#</th>
+                      <th style={{ padding: '0.4rem 0.25rem' }}>Team</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>Pl</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>W</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>D</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>L</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>GF</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>GA</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>GD</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>Pts</th>
+                      <th style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>Form</th>
                     </tr>
                   </thead>
                   <tbody>
                     {groups[groupId].map((t, idx) => (
                       <tr key={t.team_id}>
-                        <td style={{ padding: '0.5rem 0.25rem', fontWeight: 600 }}>{idx + 1}</td>
-                        <td style={{ padding: '0.5rem 0.25rem' }}>
-                          <div className="team-cell" style={{ gap: '0.5rem' }}>
-                            <img className="flag-img" src={t.flag_url} alt={t.code} style={{ width: '22px', height: '15px' }} />
-                            <span style={{ fontWeight: idx < 2 ? 600 : 400, color: idx < 2 ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{t.code}</span>
+                        <td style={{ padding: '0.4rem 0.25rem', fontWeight: 700, textAlign: 'center', color: idx < 2 ? 'var(--color-gold)' : 'var(--text-muted)' }}>{idx + 1}</td>
+                        <td style={{ padding: '0.4rem 0.25rem' }}>
+                          <div className="team-cell" style={{ gap: '0.4rem' }}>
+                            <img className="flag-img" src={t.flag_url} alt={t.code} style={{ width: '20px', height: '14px' }} />
+                            <span style={{ fontWeight: idx < 2 ? 700 : 500, fontSize: '0.8rem', color: idx < 2 ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{t.code}</span>
                           </div>
                         </td>
-                        <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center' }}>{t.played}</td>
-                        <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center', color: t.goal_difference > 0 ? 'var(--color-green)' : t.goal_difference < 0 ? 'var(--color-red)' : 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>{t.played}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', color: 'var(--color-green)', fontWeight: 600 }}>{t.won}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', color: 'var(--text-secondary)' }}>{t.drawn}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', color: 'var(--color-red)', fontWeight: 600 }}>{t.lost}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', fontWeight: 600 }}>{t.goals_for}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', fontWeight: 600 }}>{t.goals_against}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', fontWeight: 700, color: t.goal_difference > 0 ? 'var(--color-green)' : t.goal_difference < 0 ? 'var(--color-red)' : 'var(--text-secondary)' }}>
                           {t.goal_difference > 0 ? `+${t.goal_difference}` : t.goal_difference}
                         </td>
-                        <td style={{ padding: '0.5rem 0.25rem', textAlign: 'center', fontWeight: 600, color: 'var(--color-gold)' }}>{t.points}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center', fontWeight: 800, color: 'var(--color-gold)', fontSize: '0.9rem' }}>{t.points}</td>
+                        <td style={{ padding: '0.4rem 0.25rem', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '2px', justifyContent: 'center' }}>
+                            {(t.form || []).map((r, fi) => (
+                              <span key={fi} style={{
+                                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                width: '16px', height: '16px', borderRadius: '3px', fontSize: '0.6rem', fontWeight: 700, lineHeight: 1,
+                                color: '#fff',
+                                background: r === 'W' ? 'var(--color-green)' : r === 'D' ? 'var(--text-muted)' : 'var(--color-red)'
+                              }}>{r}</span>
+                            ))}
+                            {(t.form || []).length === 0 && <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>-</span>}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

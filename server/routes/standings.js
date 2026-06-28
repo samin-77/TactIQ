@@ -3,7 +3,7 @@ const router = express.Router();
 const { query } = require('../db');
 
 // GET /api/standings/groups
-// Returns all groups and their team standings from standings_cache
+// Returns all groups and their team standings from standings_cache with form
 router.get('/groups', async (req, res) => {
   try {
     const rows = await query(`
@@ -13,12 +13,35 @@ router.get('/groups', async (req, res) => {
       ORDER BY sc.group_id ASC, sc.points DESC, sc.goal_difference DESC, sc.goals_for DESC, t.name ASC;
     `);
 
-    // Group the rows by group_id (e.g. Group A, Group B, ...)
+    async function getForm(teamId) {
+      const matches = await query(`
+        SELECT m.home_team_id, m.away_team_id, m.home_score, m.away_score
+        FROM matches m
+        WHERE (m.home_team_id = ? OR m.away_team_id = ?)
+          AND m.status = 'COMPLETED'
+          AND m.home_score IS NOT NULL AND m.away_score IS NOT NULL
+        ORDER BY m.kickoff_time DESC
+        LIMIT 5;
+      `, [teamId, teamId]);
+      return matches.map(m => {
+        if (m.home_team_id === teamId) {
+          if (m.home_score > m.away_score) return 'W';
+          if (m.home_score === m.away_score) return 'D';
+          return 'L';
+        } else {
+          if (m.away_score > m.home_score) return 'W';
+          if (m.away_score === m.home_score) return 'D';
+          return 'L';
+        }
+      }).reverse();
+    }
+
     const groups = {};
     for (const row of rows) {
       if (!groups[row.group_id]) {
         groups[row.group_id] = [];
       }
+      const form = await getForm(row.team_id);
       groups[row.group_id].push({
         team_id: row.team_id,
         name: row.name,
@@ -31,7 +54,8 @@ router.get('/groups', async (req, res) => {
         goals_for: row.goals_for,
         goals_against: row.goals_against,
         goal_difference: row.goal_difference,
-        points: row.points
+        points: row.points,
+        form
       });
     }
 
