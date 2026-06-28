@@ -190,7 +190,15 @@ router.post('/seed-groups', async (req, res) => {
       }
     }
 
-    // Delete existing GROUP matches
+    // Delete existing GROUP match data (order matters for FK constraints)
+    const groupMatchIds = await query('SELECT id FROM matches WHERE stage = ?', ['GROUP']);
+    const ids = groupMatchIds.map(r => r.id);
+    if (ids.length > 0) {
+      await query('DELETE FROM player_match_stats WHERE match_id IN (' + ids.join(',') + ')');
+      await query('DELETE FROM goals WHERE match_id IN (' + ids.join(',') + ')');
+      await query('DELETE FROM assists WHERE match_id IN (' + ids.join(',') + ')');
+      await query('DELETE FROM cards WHERE match_id IN (' + ids.join(',') + ')');
+    }
     await query('DELETE FROM matches WHERE stage = ?', ['GROUP']);
 
     // Insert 72 completed group matches
@@ -219,7 +227,7 @@ router.post('/seed-groups', async (req, res) => {
     });
   } catch (error) {
     console.error('Error seeding groups:', error);
-    res.status(500).json({ error: 'Server error seeding groups' });
+    res.status(500).json({ error: 'Server error seeding groups', detail: error.message });
   }
 });
 
