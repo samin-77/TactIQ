@@ -10,6 +10,7 @@ router.get('/groups', async (req, res) => {
       SELECT sc.*, t.name, t.code, t.flag_url 
       FROM standings_cache sc
       JOIN teams t ON sc.team_id = t.id
+      WHERE sc.group_id IN ('A','B','C','D','E','F','G','H','I','J','K','L')
       ORDER BY sc.group_id ASC, sc.points DESC, sc.goal_difference DESC, sc.goals_for DESC, t.name ASC;
     `);
 
