@@ -93,4 +93,66 @@ router.get('/champion-leaderboard', async (req, res) => {
   }
 });
 
+// Seed missing teams and R32 matches into existing database (non-destructive)
+router.get('/seed-r32', async (req, res) => {
+  try {
+    const newTeams = [
+      { name: 'South Africa', code: 'RSA', group_id: 'A', flag_url: 'https://flagcdn.com/w160/za.png' },
+      { name: 'Paraguay', code: 'PAR', group_id: 'I', flag_url: 'https://flagcdn.com/w160/py.png' },
+      { name: 'Ivory Coast', code: 'CIV', group_id: 'C', flag_url: 'https://flagcdn.com/w160/ci.png' },
+      { name: 'Norway', code: 'NOR', group_id: 'F', flag_url: 'https://flagcdn.com/w160/no.png' },
+      { name: 'DR Congo', code: 'COD', group_id: 'E', flag_url: 'https://flagcdn.com/w160/cd.png' },
+      { name: 'Bosnia and Herzegovina', code: 'BIH', group_id: 'J', flag_url: 'https://flagcdn.com/w160/ba.png' },
+      { name: 'Cape Verde', code: 'CPV', group_id: 'B', flag_url: 'https://flagcdn.com/w160/cv.png' }
+    ];
+
+    const r32Pairs = [
+      ['RSA', 'CAN'], ['BRA', 'JPN'], ['GER', 'PAR'], ['NED', 'MAR'],
+      ['CIV', 'NOR'], ['FRA', 'SWE'], ['MEX', 'ECU'], ['ENG', 'COD'],
+      ['BEL', 'SEN'], ['USA', 'BIH'], ['ESP', 'AUT'], ['POR', 'CRO'],
+      ['SUI', 'ALG'], ['EGY', 'AUS'], ['ARG', 'CPV'], ['COL', 'GHA']
+    ];
+
+    const added = [];
+
+    for (const t of newTeams) {
+      const existing = await query('SELECT id FROM teams WHERE code = ?', [t.code]);
+      if (existing.length === 0) {
+        const result = await query(
+          'INSERT INTO teams (name, code, group_id, flag_url) VALUES (?, ?, ?, ?)',
+          [t.name, t.code, t.group_id, t.flag_url]
+        );
+        added.push({ code: t.code, id: result.insertId });
+      } else {
+        added.push({ code: t.code, id: existing[0].id });
+      }
+    }
+
+    const teamMap = {};
+    for (const a of added) teamMap[a.code] = a.id;
+    const allTeams = await query('SELECT id, code FROM teams');
+    for (const t of allTeams) teamMap[t.code] = t.id;
+
+    const existingR32 = await query('SELECT COUNT(*) as cnt FROM matches WHERE stage = ?', ['ROUND_OF_32']);
+    if (parseInt(existingR32[0].cnt) < 16) {
+      const r32Date = new Date();
+      r32Date.setDate(r32Date.getDate() + 7);
+
+      for (const [homeCode, awayCode] of r32Pairs) {
+        if (teamMap[homeCode] && teamMap[awayCode]) {
+          await query(
+            'INSERT INTO matches (home_team_id, away_team_id, kickoff_time, status, stage) VALUES (?, ?, ?, ?, ?)',
+            [teamMap[homeCode], teamMap[awayCode], r32Date, 'UPCOMING', 'ROUND_OF_32']
+          );
+        }
+      }
+    }
+
+    res.json({ message: 'R32 seeding complete', teamsAdded: newTeams.map(t => t.code) });
+  } catch (error) {
+    console.error('Error seeding R32:', error);
+    res.status(500).json({ error: 'Server error seeding R32' });
+  }
+});
+
 module.exports = router;

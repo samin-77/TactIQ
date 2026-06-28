@@ -25,3 +25,6 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+# Local MySQL data
+mysql-data/
