@@ -170,8 +170,8 @@ export default function AdminDashboard() {
 
   if (!user || user.role !== 'ADMIN') {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem' }}>
-        <ShieldAlert size={64} color="var(--color-red)" style={{ marginBottom: '1rem' }} />
+      <div style={{ textAlign: 'center', padding: '4rem' }} className="animate-fade-in">
+        <ShieldAlert size={64} style={{ color: 'var(--color-red)', marginBottom: '1rem' }} />
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Access Denied</h2>
         <p style={{ color: 'var(--text-secondary)' }}>You must be an administrator to access this page.</p>
       </div>
@@ -184,12 +184,12 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div>
-        <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <ShieldAlert size={32} color="var(--color-gold)" /> Admin Dashboard
-        </h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Manage match results, update standings, and control tournament data.</p>
+      <div className="section-header animate-fade-in-up">
+        <span className="section-icon"><ShieldAlert size={22} /></span>
+        <h2>Admin Dashboard</h2>
+        <span className="section-line" />
       </div>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Manage match results, update standings, and control tournament data.</p>
 
       {message.text && (
         <div style={{

@@ -1,6 +1,7 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Trophy, Home as HomeIcon, Calendar, Users, BarChart3, ShieldAlert, LogOut } from 'lucide-react';
+import { Trophy, Home as HomeIcon, Calendar, Users, BarChart3, ShieldAlert, LogOut, Moon, Sun } from 'lucide-react';
 import './index.css';
 
 // Pages
@@ -16,6 +17,14 @@ import AdminDashboard from './pages/AdminDashboard';
 function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [theme, setTheme] = useState(() => localStorage.getItem('tactiq-theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('tactiq-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
   const isActive = (path) => location.pathname === path;
 
@@ -43,6 +52,9 @@ function Navbar() {
             <ShieldAlert size={18} /> Admin
           </Link>
         )}
+        <button onClick={toggleTheme} className="theme-toggle" title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
         {user ? (
           <button onClick={logout} className="nav-btn-logout">
             <LogOut size={16} /> Logout

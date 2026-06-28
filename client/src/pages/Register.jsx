@@ -37,10 +37,10 @@ export default function Register() {
   }
 
   return (
-    <div style={{ maxWidth: '450px', margin: '4rem auto', width: '100%' }}>
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ maxWidth: '450px', margin: '4rem auto', width: '100%' }} className="animate-fade-in-up">
+      <div className="card card-glow" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.75rem', color: 'var(--color-gold)', marginBottom: '0.25rem' }}>Fan Register</h2>
+          <h2 className="text-gradient" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Fan Register</h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Get access to World Cup predictions & fantasy manager</p>
         </div>
 

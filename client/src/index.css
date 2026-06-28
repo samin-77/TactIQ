@@ -40,6 +40,39 @@
   --shadow-glow: 0 0 25px rgba(212, 175, 55, 0.15);
 }
 
+[data-theme="light"] {
+  --bg-primary: #F4F5F7;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-input: #E9ECEF;
+  --color-border: rgba(212, 175, 55, 0.25);
+  --color-border-hover: rgba(212, 175, 55, 0.5);
+  --color-border-glass: rgba(0, 0, 0, 0.07);
+
+  --color-gold: #B8960F;
+  --color-gold-hover: #D4AF37;
+  --color-gold-light: rgba(184, 150, 15, 0.1);
+  --color-gold-glow: rgba(184, 150, 15, 0.2);
+
+  --color-green: #00A86B;
+  --color-green-glow: rgba(0, 168, 107, 0.2);
+  --color-red: #D92D20;
+  --color-yellow: #DCB000;
+
+  --color-pitch: #00A86B;
+  --color-pitch-dark: #00875A;
+  --color-blue: #1D72B8;
+  --color-purple: #6B3FA0;
+  --color-orange: #D95C00;
+
+  --text-primary: #1A1A2E;
+  --text-secondary: #495057;
+  --text-muted: #868E96;
+
+  --shadow-gold: 0 4px 20px rgba(184, 150, 15, 0.15);
+  --shadow-glow: 0 0 25px rgba(184, 150, 15, 0.12);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -66,6 +99,13 @@ body::before {
   pointer-events: none;
   z-index: 0;
   animation: bgShift 25s ease-in-out infinite;
+}
+
+[data-theme="light"] body::before {
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(184, 150, 15, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(0, 168, 107, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(29, 114, 184, 0.02) 0%, transparent 50%);
 }
 
 @keyframes bgShift {
@@ -272,6 +312,26 @@ a:hover { color: var(--color-gold-hover); }
   color: white;
   box-shadow: 0 0 15px rgba(255, 59, 48, 0.3);
   transform: translateY(-1px);
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border-glass);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+  background: var(--color-gold-light);
+  transform: rotate(15deg);
 }
 
 /* ===== FORMS ===== */

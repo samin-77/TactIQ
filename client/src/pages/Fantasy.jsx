@@ -182,10 +182,12 @@ export default function Fantasy() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div>
-        <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Fantasy Football Mini-League</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Build your dream squad of 11 World Cup stars within a 100.0m budget.</p>
+      <div className="section-header animate-fade-in-up">
+        <span className="section-icon"><Users size={22} /></span>
+        <h2>Fantasy Football Mini-League</h2>
+        <span className="section-line" />
       </div>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Build your dream squad of 11 World Cup stars within a 100.0m budget.</p>
 
       <div className="tab-container">
         <button 

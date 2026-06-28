@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Target, Users, ArrowRight, Search, Crown } from 'lucide-react';
+import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3 } from 'lucide-react';
 
 export default function Stats() {
   const { apiUrl } = useAuth();
@@ -81,10 +81,12 @@ export default function Stats() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div>
-        <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Player Statistics & Analytics</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Golden Boot race, player profiles, and head-to-head team comparisons.</p>
+      <div className="section-header animate-fade-in-up">
+        <span className="section-icon"><BarChart3 size={22} /></span>
+        <h2>Player Statistics & Analytics</h2>
+        <span className="section-line" />
       </div>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Golden Boot race, player profiles, and head-to-head team comparisons.</p>
 
       <div className="tab-container">
         <button 

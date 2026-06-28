@@ -33,19 +33,19 @@ export default function Login() {
   }
 
   return (
-    <div style={{ maxWidth: '450px', margin: '4rem auto', width: '100%' }}>
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ maxWidth: '450px', margin: '4rem auto', width: '100%' }} className="animate-fade-in-up">
+      <div className="card card-glow" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.75rem', color: 'var(--color-gold)', marginBottom: '0.25rem' }}>Account Login</h2>
+          <h2 className="text-gradient" style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Account Login</h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Welcome back to the TactIQ Arena</p>
         </div>
 
         {error && (
           <div style={{
-            backgroundColor: 'rgba(255, 59, 48, 0.1)',
+            background: 'rgba(255, 59, 48, 0.1)',
             border: '1px solid var(--color-red)',
             color: 'var(--color-red)',
-            padding: '0.75rem',
+            padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-sm)',
             fontSize: '0.9rem',
             textAlign: 'center'

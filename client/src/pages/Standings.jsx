@@ -368,10 +368,12 @@ export default function Standings() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div>
-        <h2 style={{ fontSize: '2rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Tournament Arena</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>Follow the group stages standings and the road to the FIFA World Cup 2026 Final.</p>
+      <div className="section-header animate-fade-in-up">
+        <span className="section-icon"><Trophy size={22} /></span>
+        <h2>Tournament Arena</h2>
+        <span className="section-line" />
       </div>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Follow the group stages standings and the road to the FIFA World Cup 2026 Final.</p>
 
       <div className="tab-container">
         <button className={`tab-btn ${activeTab === 'standings' ? 'active' : ''}`} onClick={() => setActiveTab('standings')}>

@@ -227,7 +227,11 @@ export default function MatchDetail() {
   }
 
   if (!match) {
-    return <div style={{ textAlign: 'center', padding: '3rem', fontSize: '1.2rem', color: 'var(--color-red)' }}>Match not found!</div>;
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <p style={{ fontSize: '1.2rem', color: 'var(--color-red)' }}>Match not found!</p>
+      </div>
+    );
   }
 
   const kickoffTime = new Date(match.kickoff_time);
@@ -236,8 +240,13 @@ export default function MatchDetail() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="section-header animate-fade-in-up">
+        <span className="section-icon"><Calendar size={22} /></span>
+        <h2>Match Center</h2>
+        <span className="section-line" />
+      </div>
       {/* Match Banner Card */}
-      <div className="card" style={{
+      <div className="card animate-fade-in-up delay-1" style={{
         background: 'linear-gradient(180deg, var(--bg-secondary) 0%, rgba(20, 26, 51, 0.9) 100%)',
         padding: '2.5rem 2rem',
         textAlign: 'center',
