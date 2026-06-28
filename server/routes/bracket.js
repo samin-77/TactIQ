@@ -107,10 +107,10 @@ router.get('/seed-r32', async (req, res) => {
     ];
 
     const r32Pairs = [
-      ['RSA', 'CAN'], ['BRA', 'JPN'], ['GER', 'PAR'], ['NED', 'MAR'],
-      ['CIV', 'NOR'], ['FRA', 'SWE'], ['MEX', 'ECU'], ['ENG', 'COD'],
-      ['BEL', 'SEN'], ['USA', 'BIH'], ['ESP', 'AUT'], ['POR', 'CRO'],
-      ['SUI', 'ALG'], ['EGY', 'AUS'], ['ARG', 'CPV'], ['COL', 'GHA']
+      ['GER', 'PAR'], ['FRA', 'SWE'], ['RSA', 'CAN'], ['NED', 'MAR'],
+      ['POR', 'CRO'], ['ESP', 'AUT'], ['USA', 'BIH'], ['BEL', 'SEN'],
+      ['BRA', 'JPN'], ['CIV', 'NOR'], ['MEX', 'ECU'], ['ENG', 'COD'],
+      ['ARG', 'CPV'], ['AUS', 'EGY'], ['SUI', 'ALG'], ['COL', 'GHA']
     ];
 
     const added = [];

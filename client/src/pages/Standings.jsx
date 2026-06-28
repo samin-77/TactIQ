@@ -27,6 +27,7 @@ export default function Standings() {
   const [msg, setMsg] = useState('');
   const [allPlayers, setAllPlayers] = useState([]);
   const [championLeaderboard, setChampionLeaderboard] = useState([]);
+  const [championCelebration, setChampionCelebration] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -95,6 +96,10 @@ export default function Standings() {
     const vid = match?.id || `${VIRTUAL_PREFIX}${stage}_${index}`;
     setPredictions(prev => ({ ...prev, [vid]: { match_id: vid, predicted_winner_id: teamId, ...team } }));
     setPredictingMatch(null);
+    if (stage === 'FINAL') {
+      setChampionCelebration({ teamId, teamName: team.team_name, teamCode: team.team_code, flagUrl: team.flag_url });
+      setTimeout(() => setChampionCelebration(null), 5000);
+    }
   }
 
   function computeChampion() {
@@ -450,6 +455,32 @@ export default function Standings() {
       )}
 
       {renderPicker()}
+
+      {championCelebration && (
+        <div className="champion-overlay" onClick={() => setChampionCelebration(null)}>
+          <div className="champion-celebration">
+            <div className="champion-confetti-container">
+              {Array.from({ length: 40 }, (_, i) => (
+                <div key={i} className="confetti-piece" style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 2}s`,
+                  animationDuration: `${1.5 + Math.random() * 2}s`,
+                  backgroundColor: ['#ffd700','#ff6b6b','#48dbfb','#ff9ff3','#54a0ff','#5f27cd','#01a3a4','#f368e0','#ff9f43'][i % 9]
+                }} />
+              ))}
+            </div>
+            <div className="champion-content">
+              <div className="champion-trophy">
+                <Crown size={48} />
+              </div>
+              <p className="champion-label">CHAMPION</p>
+              <img className="champion-flag" src={championCelebration.flagUrl} alt={championCelebration.teamCode} />
+              <h2 className="champion-name">{championCelebration.teamName}</h2>
+              <p className="champion-code">{championCelebration.teamCode}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
