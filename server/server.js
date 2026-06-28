@@ -35,6 +35,7 @@ const standingsRoutes = require('./routes/standings');
 const matchesRoutes = require('./routes/matches');
 const statsRoutes = require('./routes/stats');
 const fantasyRoutes = require('./routes/fantasy');
+const bracketRoutes = require('./routes/bracket');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -42,6 +43,7 @@ app.use('/api/standings', standingsRoutes);
 app.use('/api/matches', matchesRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/fantasy', fantasyRoutes);
+app.use('/api/bracket', bracketRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

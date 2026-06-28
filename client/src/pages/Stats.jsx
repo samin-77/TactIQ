@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Target, Users, ArrowRight, Search } from 'lucide-react';
+import { Trophy, Target, Users, ArrowRight, Search, Crown } from 'lucide-react';
 
 export default function Stats() {
   const { apiUrl } = useAuth();
   
-  const [activeTab, setActiveTab] = useState('scorers'); // 'scorers', 'players', 'compare'
+  const [activeTab, setActiveTab] = useState('scorers'); // 'scorers', 'players', 'compare', 'champions'
+  const [champions, setChampions] = useState([]);
   const [scorers, setScorers] = useState([]);
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -39,6 +40,11 @@ export default function Stats() {
         const pRes = await fetch(`${apiUrl}/stats/players`);
         const pData = await pRes.json();
         setPlayers(pData.players || []);
+
+        // Load bracket champions
+        const cRes = await fetch(`${apiUrl}/bracket/champion-leaderboard`);
+        const cData = await cRes.json();
+        setChampions(cData.leaderboard || []);
       } catch (err) {
         console.error('Error loading stats:', err);
       } finally {
@@ -98,6 +104,12 @@ export default function Stats() {
           onClick={() => setActiveTab('compare')}
         >
           Team Comparison
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'champions' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('champions')}
+        >
+          <Crown size={16} /> Champions
         </button>
       </div>
 
@@ -462,6 +474,48 @@ export default function Stats() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'champions' && (
+        <div className="card">
+          <h3 style={{ color: 'var(--color-gold)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Crown size={24} /> Bracket Champions Leaderboard
+          </h3>
+
+          {champions.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
+              No champions predicted yet. Go to Standings &gt; Knockout Bracket to make your predictions!
+            </p>
+          ) : (
+            <div className="table-container">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Champion Team</th>
+                    <th>Predicted At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {champions.map((champ, i) => (
+                    <tr key={i}>
+                      <td style={{ fontWeight: 600 }}>{champ.username}</td>
+                      <td>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                          {champ.flag && <span>{champ.flag}</span>}
+                          {champ.team_name || 'TBD'}
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                        {champ.predicted_at ? new Date(champ.predicted_at).toLocaleString() : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
