@@ -176,10 +176,21 @@ router.post('/seed-groups', async (req, res) => {
       }
     }
 
+    // Ensure reserve group Z exists for unused teams
+    await query('INSERT IGNORE INTO `groups` (id, name) VALUES (?, ?)', ['Z', 'Reserve']);
+
     // Update group_ids for all 48 teams
     for (const [code, gid] of Object.entries(groupAssignments)) {
       if (teamMap[code]) {
         await query('UPDATE teams SET group_id = ? WHERE id = ?', [gid, teamMap[code]]);
+      }
+    }
+
+    // Move unused teams to reserve group
+    const unusedCodes = ['CMR','MLI','POL','CHI','PER','DEN','NGA','CRC','WAL','HON','UKR','JAM'];
+    for (const code of unusedCodes) {
+      if (teamMap[code]) {
+        await query('UPDATE teams SET group_id = ? WHERE id = ?', ['Z', teamMap[code]]);
       }
     }
 
