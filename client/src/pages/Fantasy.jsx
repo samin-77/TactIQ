@@ -82,7 +82,7 @@ export default function Fantasy() {
   selectedPlayerDetails.forEach(p => squadCounts[p.position]++);
   
   const totalCost = selectedPlayerDetails.reduce((sum, p) => sum + parseFloat(p.cost), 0);
-  const remainingBudget = 100.0 - totalCost;
+  const remainingBudget = 70.0 - totalCost;
 
   // Check if squad is valid
   const isValidSquad = 
@@ -91,7 +91,7 @@ export default function Fantasy() {
     squadCounts.DF === 4 &&
     squadCounts.MF === 4 &&
     squadCounts.FW === 2 &&
-    totalCost <= 100.0;
+    totalCost <= 70.0;
 
   // Toggle player selection
   function togglePlayer(playerId) {
@@ -119,8 +119,8 @@ export default function Fantasy() {
       if (selectedPlayers.length !== 11) {
         return setError(`Your squad must contain exactly 11 players. Currently you have selected ${selectedPlayers.length}.`);
       }
-      if (totalCost > 100.0) {
-        return setError(`Budget exceeded! You have spent ${totalCost.toFixed(1)}m. Max budget allowed is 100.0m.`);
+      if (totalCost > 70.0) {
+        return setError(`Budget exceeded! You have spent ${totalCost.toFixed(1)}m. Max budget allowed is 70.0m.`);
       }
       if (squadCounts.GK !== 1) {
         return setError(`Your squad must have exactly 1 Goalkeeper (GK). Currently you have ${squadCounts.GK}.`);
@@ -188,7 +188,7 @@ export default function Fantasy() {
         <h2>Fantasy Football Mini-League</h2>
         <span className="section-line" />
       </div>
-      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Build your dream squad of 11 World Cup stars within a 100.0m budget.</p>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Build your dream squad of 11 World Cup stars within a 70.0m budget. Be tactical with your picks!</p>
 
       <div className="tab-container">
         <button 
@@ -233,7 +233,7 @@ export default function Fantasy() {
                     <div>
                       <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Budget Used</p>
                       <p style={{ fontSize: '1.5rem', fontWeight: 700, color: remainingBudget >= 0 ? 'var(--color-green)' : 'var(--color-red)' }}>
-                        {totalCost.toFixed(1)}m / 100.0m
+                        {totalCost.toFixed(1)}m / 70.0m
                       </p>
                     </div>
                   </div>
@@ -415,6 +415,7 @@ export default function Fantasy() {
                   <th>Rank</th>
                   <th>Manager</th>
                   <th>Team Name</th>
+                  <th>Rating</th>
                   <th>Total Points</th>
                   <th>Best Player</th>
                   <th>Best Player Pts</th>
@@ -423,7 +424,7 @@ export default function Fantasy() {
               <tbody>
                 {leaderboard.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                       No fantasy teams yet. Be the first to create one!
                     </td>
                   </tr>
@@ -435,6 +436,23 @@ export default function Fantasy() {
                       </td>
                       <td>{entry.username}</td>
                       <td>{entry.team_name}</td>
+                      <td>
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: 'var(--radius-sm)',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
+                          background: (entry.squad_rating || 0) >= 75 ? 'rgba(0, 200, 117, 0.15)' :
+                                     (entry.squad_rating || 0) >= 50 ? 'rgba(212, 175, 55, 0.15)' :
+                                     'rgba(255, 59, 48, 0.15)',
+                          color: (entry.squad_rating || 0) >= 75 ? 'var(--color-green)' :
+                                (entry.squad_rating || 0) >= 50 ? 'var(--color-gold)' :
+                                'var(--color-red)'
+                        }}>
+                          {entry.squad_rating || 0}
+                        </span>
+                      </td>
                       <td style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{entry.total_points}</td>
                       <td>{entry.best_player_name || 'N/A'}</td>
                       <td>{entry.best_player_points || 0}</td>

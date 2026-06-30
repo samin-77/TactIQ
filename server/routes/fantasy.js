@@ -95,7 +95,7 @@ router.post('/team', authenticateToken, async (req, res) => {
         await tx('INSERT INTO fantasy_picks (fantasy_team_id, player_id) VALUES (?, ?);', [teamId, pid]);
       }
 
-      // 5. Enforce Budget Constraint (100.0m limit) via RAW SQL SUM query
+      // 5. Enforce Budget Constraint (70.0m limit) via RAW SQL SUM query
       const budgetResult = await tx(`
         SELECT SUM(p.cost) AS total_cost
         FROM fantasy_picks fp
@@ -104,10 +104,47 @@ router.post('/team', authenticateToken, async (req, res) => {
       `, [teamId]);
 
       const totalCost = parseFloat((budgetResult[0] && budgetResult[0].total_cost) || 0);
-      if (totalCost > 100.0) {
-        // Throwing error triggers transaction ROLLBACK automatically
-        throw new Error(`Squad budget exceeded! Total cost is ${totalCost}m. Max budget allowed is 100.0m.`);
+      if (totalCost > 70.0) {
+        throw new Error(`Squad budget exceeded! Total cost is ${totalCost}m. Max budget allowed is 70.0m.`);
       }
+
+      // 6. Calculate squad rating (0-100)
+      const ratingResult = await tx(`
+        SELECT 
+          AVG(p.cost) AS avg_cost,
+          MAX(p.cost) AS max_cost,
+          SUM(CASE WHEN p.position = 'FW' THEN p.cost ELSE 0 END) / NULLIF(SUM(CASE WHEN p.position = 'FW' THEN 1 ELSE 0 END), 0) AS avg_fw_cost,
+          SUM(CASE WHEN p.position = 'MF' THEN p.cost ELSE 0 END) / NULLIF(SUM(CASE WHEN p.position = 'MF' THEN 1 ELSE 0 END), 0) AS avg_mf_cost,
+          COUNT(DISTINCT p.team_id) AS team_diversity,
+          SUM(p.cost) AS total_squad_value
+        FROM fantasy_picks fp
+        JOIN players p ON fp.player_id = p.id
+        WHERE fp.fantasy_team_id = ?;
+      `, [teamId]);
+
+      const r = ratingResult[0];
+      const avgCost = parseFloat(r.avg_cost) || 0;
+      const maxCost = parseFloat(r.max_cost) || 0;
+      const avgFwCost = parseFloat(r.avg_fw_cost) || 0;
+      const avgMfCost = parseFloat(r.avg_mf_cost) || 0;
+      const diversity = parseInt(r.team_diversity) || 0;
+      const totalValue = parseFloat(r.total_squad_value) || 0;
+
+      // Rating formula (0-100):
+      // - Avg player cost (0-30 pts): higher = better
+      // - Star power (0-25 pts): having premium players
+      // - Attack strength (0-20 pts): FW cost
+      // - Midfield quality (0-15 pts): MF cost
+      // - Team diversity (0-10 pts): more teams = better spread
+      const costScore = Math.min(30, (avgCost / 12) * 30);
+      const starScore = Math.min(25, ((maxCost >= 13 ? 1 : 0) + (maxCost >= 14 ? 1 : 0) + (maxCost >= 15 ? 1 : 0)) * 8 + (avgCost > 9 ? 1 : 0) * 5);
+      const attackScore = Math.min(20, (avgFwCost / 14) * 20);
+      const midfieldScore = Math.min(15, (avgMfCost / 11) * 15);
+      const diversityScore = Math.min(10, (diversity / 8) * 10);
+
+      const squadRating = Math.round(costScore + starScore + attackScore + midfieldScore + diversityScore);
+
+      await tx('UPDATE fantasy_teams SET squad_rating = ? WHERE id = ?;', [squadRating, teamId]);
     });
 
     res.json({ message: 'Fantasy squad submitted successfully!' });
@@ -125,6 +162,7 @@ router.get('/leaderboard', async (req, res) => {
       SELECT 
         ft.id AS fantasy_team_id,
         ft.team_name,
+        ft.squad_rating,
         u.username,
         COALESCE(SUM(pms.points), 0) AS total_points,
         (
@@ -154,7 +192,7 @@ router.get('/leaderboard', async (req, res) => {
       LEFT JOIN fantasy_picks fp ON ft.id = fp.fantasy_team_id
       LEFT JOIN players pl ON fp.player_id = pl.id
       LEFT JOIN player_match_stats pms ON pl.id = pms.player_id
-      GROUP BY ft.id, ft.team_name, u.username
+      GROUP BY ft.id, ft.team_name, ft.squad_rating, u.username
       ORDER BY total_points DESC, ft.team_name ASC;
     `);
 
