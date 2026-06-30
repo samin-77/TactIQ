@@ -109,6 +109,15 @@ router.get('/:id', async (req, res) => {
       WHERE c.match_id = ? ORDER BY c.minute ASC;
     `, [matchId]);
 
+    // Get player match stats
+    const playerStats = await query(`
+      SELECT pms.*, p.name AS player_name, t.code AS team_code
+      FROM player_match_stats pms
+      JOIN players p ON pms.player_id = p.id
+      JOIN teams t ON p.team_id = t.id
+      WHERE pms.match_id = ? ORDER BY p.name ASC;
+    `, [matchId]);
+
     // Get user prediction
     let userPrediction = null;
     if (userId) {
@@ -124,6 +133,7 @@ router.get('/:id', async (req, res) => {
     res.json({
       match,
       events: { goals, assists, cards },
+      playerStats,
       userPrediction
     });
   } catch (error) {

@@ -17,9 +17,9 @@ router.get('/scorers', async (req, res) => {
 });
 
 // GET /api/stats/players
-// Returns players list filterable by team, position, name search
+// Returns players list filterable by team, position, name search, or multiple team IDs
 router.get('/players', async (req, res) => {
-  const { teamId, position, search } = req.query;
+  const { teamId, teamIds, position, search } = req.query;
 
   let sql = `
     SELECT p.*, t.name AS team_name, t.code AS team_code, t.flag_url,
@@ -35,7 +35,13 @@ router.get('/players', async (req, res) => {
   const params = [];
   const conditions = [];
 
-  if (teamId) {
+  if (teamIds) {
+    const ids = teamIds.split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+    if (ids.length > 0) {
+      conditions.push(`p.team_id IN (${ids.map(() => '?').join(',')})`);
+      params.push(...ids);
+    }
+  } else if (teamId) {
     conditions.push('p.team_id = ?');
     params.push(parseInt(teamId));
   }
@@ -54,7 +60,7 @@ router.get('/players', async (req, res) => {
 
   sql += `
     GROUP BY p.id, t.name, t.code, t.flag_url
-    ORDER BY total_goals DESC, total_assists DESC, p.name ASC;
+    ORDER BY t.name ASC, p.position ASC, p.name ASC;
   `;
 
   try {
