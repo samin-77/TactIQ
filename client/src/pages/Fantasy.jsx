@@ -357,7 +357,11 @@ export default function Fantasy() {
               </div>
 
               {/* Player List */}
-              <div style={{ maxHeight: '500px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Showing {filteredPlayers.length} of {allPlayers.length} players</span>
+                <span>{selectedPlayers.length}/11 selected</span>
+              </div>
+              <div style={{ maxHeight: '600px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {filteredPlayers.length === 0 ? (
                   <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No players match your filters.</p>
                 ) : (
@@ -369,7 +373,7 @@ export default function Fantasy() {
                         key={p.id}
                         onClick={() => canSelect && togglePlayer(p.id)}
                         style={{
-                          padding: '0.75rem',
+                          padding: '0.6rem 0.75rem',
                           background: isSelected ? 'rgba(212, 175, 55, 0.1)' : 'rgba(255, 255, 255, 0.02)',
                           border: isSelected ? '1px solid var(--color-gold)' : '1px solid var(--color-border-glass)',
                           borderRadius: 'var(--radius-sm)',
@@ -383,15 +387,15 @@ export default function Fantasy() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <img className="flag-img" src={p.flag_url} alt={p.team_code} />
                           <div>
-                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                              {p.position} • {p.team_code}
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.9rem' }}>{p.name}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                              {p.position} • {p.team_code} • {p.team_name}
                             </div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <span style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{p.cost}m</span>
-                          {isSelected ? <CheckCircle size={18} color="var(--color-gold)" /> : canSelect ? <Plus size={18} color="var(--text-muted)" /> : null}
+                          {isSelected ? <CheckCircle size={16} color="var(--color-gold)" /> : canSelect ? <Plus size={16} color="var(--text-muted)" /> : null}
                         </div>
                       </div>
                     );
