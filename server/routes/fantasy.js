@@ -95,7 +95,7 @@ router.post('/team', authenticateToken, async (req, res) => {
         await tx('INSERT INTO fantasy_picks (fantasy_team_id, player_id) VALUES (?, ?);', [teamId, pid]);
       }
 
-      // 5. Enforce Budget Constraint (70.0m limit) via RAW SQL SUM query
+      // 5. Enforce Budget Constraint (100.0m limit) via RAW SQL SUM query
       const budgetResult = await tx(`
         SELECT SUM(p.cost) AS total_cost
         FROM fantasy_picks fp
@@ -104,8 +104,8 @@ router.post('/team', authenticateToken, async (req, res) => {
       `, [teamId]);
 
       const totalCost = parseFloat((budgetResult[0] && budgetResult[0].total_cost) || 0);
-      if (totalCost > 70.0) {
-        throw new Error(`Squad budget exceeded! Total cost is ${totalCost}m. Max budget allowed is 70.0m.`);
+      if (totalCost > 100.0) {
+        throw new Error(`Squad budget exceeded! Total cost is ${totalCost}m. Max budget allowed is 100.0m.`);
       }
 
       // 6. Calculate squad rating (0-100)

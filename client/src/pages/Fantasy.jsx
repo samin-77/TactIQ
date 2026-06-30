@@ -82,7 +82,7 @@ export default function Fantasy() {
   selectedPlayerDetails.forEach(p => squadCounts[p.position]++);
   
   const totalCost = selectedPlayerDetails.reduce((sum, p) => sum + parseFloat(p.cost), 0);
-  const remainingBudget = 70.0 - totalCost;
+  const remainingBudget = 100.0 - totalCost;
 
   // Check if squad is valid
   const isValidSquad = 
@@ -91,7 +91,7 @@ export default function Fantasy() {
     squadCounts.DF === 4 &&
     squadCounts.MF === 4 &&
     squadCounts.FW === 2 &&
-    totalCost <= 70.0;
+    totalCost <= 100.0;
 
   // Toggle player selection
   function togglePlayer(playerId) {
@@ -119,8 +119,8 @@ export default function Fantasy() {
       if (selectedPlayers.length !== 11) {
         return setError(`Your squad must contain exactly 11 players. Currently you have selected ${selectedPlayers.length}.`);
       }
-      if (totalCost > 70.0) {
-        return setError(`Budget exceeded! You have spent ${totalCost.toFixed(1)}m. Max budget allowed is 70.0m.`);
+      if (totalCost > 100.0) {
+        return setError(`Budget exceeded! You have spent ${totalCost.toFixed(1)}m. Max budget allowed is 100.0m.`);
       }
       if (squadCounts.GK !== 1) {
         return setError(`Your squad must have exactly 1 Goalkeeper (GK). Currently you have ${squadCounts.GK}.`);
@@ -188,7 +188,7 @@ export default function Fantasy() {
         <h2>Fantasy Football Mini-League</h2>
         <span className="section-line" />
       </div>
-      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Build your dream squad of 11 World Cup stars within a 70.0m budget. Be tactical with your picks!</p>
+      <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Build your dream squad of 11 World Cup stars within a 100.0m budget. Be tactical with your picks!</p>
 
       <div className="tab-container">
         <button 
@@ -233,7 +233,7 @@ export default function Fantasy() {
                     <div>
                       <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Budget Used</p>
                       <p style={{ fontSize: '1.5rem', fontWeight: 700, color: remainingBudget >= 0 ? 'var(--color-green)' : 'var(--color-red)' }}>
-                        {totalCost.toFixed(1)}m / 70.0m
+                        {totalCost.toFixed(1)}m / 100.0m
                       </p>
                     </div>
                   </div>
