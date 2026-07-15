@@ -373,8 +373,8 @@ export const tournamentStats = {
   smallestStadium: { name: 'BMO Field', capacity: 43036 },
   mostMatches: { name: 'AT&T Stadium', matches: 9 },
   countries: {
-    USA: { cities: 11, matches: 78 },
-    Mexico: { cities: 3, matches: 13 },
-    Canada: { cities: 2, matches: 13 }
+    US: { cities: 11, matches: 78 },
+    MX: { cities: 3, matches: 13 },
+    CA: { cities: 2, matches: 13 }
   }
 };

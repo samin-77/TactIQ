@@ -297,23 +297,24 @@ export default function Venues() {
         <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Globe size={20} /> Country Breakdown
         </h3>
-        <div className="grid-3" style={{ gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           {Object.entries(tournamentStats.countries).map(([code, data]) => (
             <div key={code} style={{
               padding: '1.25rem', borderRadius: 'var(--radius-md)',
               background: `${countryColors[code]}08`,
-              border: `1px solid ${countryColors[code]}30`
+              border: `1px solid ${countryColors[code]}30`,
+              textAlign: 'center'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>{code === 'US' ? '🇺🇸' : code === 'MX' ? '🇲🇽' : '🇨🇦'}</span>
-                <span style={{ fontWeight: 700, color: countryColors[code] }}>{countryNames[code]}</span>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.25rem' }}>{code === 'US' ? '🇺🇸' : code === 'MX' ? '🇲🇽' : '🇨🇦'}</span>
+                <span style={{ fontWeight: 700, color: countryColors[code], fontSize: '1rem' }}>{countryNames[code]}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div>
+              <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.5rem' }}>
+                <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{data.cities}</p>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>Cities</p>
                 </div>
-                <div>
+                <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{data.matches}</p>
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', margin: 0 }}>Matches</p>
                 </div>
