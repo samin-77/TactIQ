@@ -80,7 +80,7 @@ export default function Home() {
   const interactiveFeatures = [
     { icon: TrendingUp, title: 'Live Bracket & Standings', desc: 'Follow every stage from the Round of 32 to the Final. Interactive group tables, knockout bracket tree, and real-time match results across all 104 matches.', link: 'Explore Bracket', to: '/standings' },
     { icon: Target, title: 'Match Score Predictor', desc: 'Predict exact scorelines before kickoff. Earn 10 points for correct winners, 5 for correct goal difference, and compete on the global leaderboard.', link: 'Make Predictions', to: '/standings' },
-    { icon: Users, title: 'Fantasy Football League', desc: 'Build your dream 11-player squad within a $100m budget. Earn points from goals, assists, clean sheets, and climb the manager rankings.', link: 'Build Squad', to: '/fantasy' },
+    { icon: Users, title: 'Fantasy Football League', desc: 'Build your dream 11-player squad within a $150m budget. Earn points from goals, assists, clean sheets, and climb the manager rankings.', link: 'Build Squad', to: '/fantasy' },
   ];
 
   const knowledgeFeatures = [

@@ -59,7 +59,7 @@ CREATE TABLE players (
     name VARCHAR(100) NOT NULL,
     team_id INT NOT NULL,
     position ENUM('GK', 'DF', 'MF', 'FW') NOT NULL,
-    cost DECIMAL(4,1) NOT NULL CHECK (cost >= 3.0 AND cost <= 15.0),
+    cost DECIMAL(5,1) NOT NULL CHECK (cost >= 3.0 AND cost <= 25.0),
     image_url VARCHAR(255),
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
