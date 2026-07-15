@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Trophy, Home as HomeIcon, Calendar, Users, BarChart3, ShieldAlert, LogOut, Moon, Sun, BookOpen, Brain } from 'lucide-react';
+import { Trophy, Home as HomeIcon, Calendar, Users, BarChart3, ShieldAlert, LogOut, Moon, Sun, BookOpen, Brain, MapPin } from 'lucide-react';
 import './index.css';
 
 // Pages
@@ -15,6 +15,7 @@ import Stats from './pages/Stats';
 import AdminDashboard from './pages/AdminDashboard';
 import History from './pages/History';
 import Quiz from './pages/Quiz';
+import Venues from './pages/Venues';
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -55,6 +56,9 @@ function Navbar() {
         <Link to="/quiz" className={`nav-link ${isActive('/quiz') ? 'active' : ''}`}>
           <Brain size={18} /> Quiz
         </Link>
+        <Link to="/venues" className={`nav-link ${isActive('/venues') ? 'active' : ''}`}>
+          <MapPin size={18} /> Venues
+        </Link>
         {user && user.role === 'ADMIN' && (
           <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`}>
             <ShieldAlert size={18} /> Admin
@@ -93,6 +97,7 @@ function AppContent() {
           <Route path="/stats" element={<Stats />} />
           <Route path="/history" element={<History />} />
           <Route path="/quiz" element={<Quiz />} />
+          <Route path="/venues" element={<Venues />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </main>
