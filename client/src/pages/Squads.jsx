@@ -2,6 +2,15 @@ import { useState, useMemo } from 'react';
 import { Users, Search, Filter, ChevronDown, ChevronUp, Globe, User, Star, Shirt } from 'lucide-react';
 import { teams, confederations, groups, positions } from '../data/squadData';
 
+const getFlagEmoji = (countryCode) => {
+  if (!countryCode || countryCode.length !== 2) return '';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 0x1F1E6 - 65 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
 const positionColors = {
   GK: '#FFD700',
   DF: '#4169E1',
@@ -236,7 +245,7 @@ export default function Squads() {
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-glass)'; }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '2rem' }}>{team.flag}</span>
+                        <span style={{ fontSize: '2rem' }}>{getFlagEmoji(team.code)}</span>
                         <div>
                           <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{team.name}</p>
                           <p style={{ margin: 0, fontSize: '0.7rem', color: confederationColors[team.confederation] }}>{team.confederation}</p>
@@ -268,7 +277,7 @@ export default function Squads() {
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-glass)'; }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.75rem' }}>{team.flag}</span>
+                <span style={{ fontSize: '1.75rem' }}>{getFlagEmoji(team.code)}</span>
                 <div style={{ minWidth: 0 }}>
                   <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{team.name}</p>
                   <p style={{ margin: 0, fontSize: '0.65rem', color: confederationColors[team.confederation] }}>{team.confederation} · Group {team.group}</p>
