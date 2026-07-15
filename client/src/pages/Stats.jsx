@@ -1,49 +1,69 @@
 import { useState, useMemo } from 'react';
-import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3 } from 'lucide-react';
+import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3, Swords } from 'lucide-react';
 import { teams as squadData } from '../data/squadData';
 
 const fifaToEmoji = {
-  ARG: 'AR', AUS: 'AU', AUT: 'AT', BEL: 'BE', BOL: 'BO', BRA: 'BR',
-  BUL: 'BG', CAN: 'CA', CHI: 'CL', CHN: 'CN', COL: 'CO', CRC: 'CR',
-  CRO: 'HR', CZE: 'CZ', DEN: 'DK', ECU: 'EC', EGY: 'EG', ENG: 'GB',
-  ESP: 'ES', FRA: 'FR', GER: 'DE', GHA: 'GH', GRE: 'GR', HAI: 'HT',
-  HON: 'HN', HUN: 'HU', IDN: 'ID', IRN: 'IR', IRQ: 'IQ', IRL: 'IE',
-  ISL: 'IS', ISR: 'IL', ITA: 'IT', IVR: 'CI', JAM: 'JM', JPN: 'JP',
-  JOR: 'JO', KAZ: 'KZ', KOR: 'KR', KSA: 'SA', KUW: 'KW', LBR: 'LR',
-  LBY: 'LY', MEX: 'MX', MAR: 'MA', MLT: 'MT', NED: 'NL', NZL: 'NZ',
-  NGA: 'NG', NOR: 'NO', PAN: 'PA', PAR: 'PY', PER: 'PE', POL: 'PL',
-  POR: 'PT', QAT: 'QA', ROU: 'RO', RUS: 'RU', KSA: 'SA', SCO: 'GB',
-  SEN: 'SN', SER: 'RS', SGP: 'SG', SLO: 'SI', SVK: 'SK', SWE: 'SE',
-  SWI: 'CH', SUI: 'CH', TUN: 'TN', TUR: 'TR', UAE: 'AE', UKR: 'UA',
-  URU: 'UY', USA: 'US', UZB: 'UZ', VEN: 'VE', WAL: 'GB', ZAM: 'ZM',
-  ZIM: 'ZW', GAB: 'GA', GUI: 'GN', NAM: 'NA', MLI: 'ML', BFA: 'BF',
-  BAN: 'BD', PHI: 'PH', THA: 'TH', VIE: 'VN', CMR: 'CM', COD: 'CD',
-  ANG: 'AO', MOZ: 'MZ', MAD: 'MG', TAN: 'TZ', ETH: 'ET', KEN: 'KE',
-  RSA: 'ZA', ALG: 'DZ', IRQ: 'IQ', BRN: 'BN', MAC: 'MO', HKG: 'HK',
-  TPE: 'TW', MYA: 'MM', LAO: 'LA', CAM: 'KH', TLS: 'TL', NEP: 'NP',
-  PNG: 'PG', FIJ: 'FJ', SOL: 'SB', TAH: 'PF', SAM: 'WS', TGA: 'TO',
-  VAN: 'VU', COK: 'CK', ASA: 'AS', GUM: 'GU', NCL: 'NC', PLW: 'PW',
-  FSM: 'FM', MHL: 'MH', NRU: 'NR', KIR: 'KI', TUV: 'TV',
-  CPR: 'CU', NIR: 'GB', TRI: 'TT', BER: 'BM', CAY: 'KY',VIN: 'VC',
-  BAR: 'BB', ANT: 'AW', GRN: 'GD', LCA: 'LC', SKN: 'KN', DMA: 'DM',
-  MTQ: 'MQ', GUF: 'GF', SUR: 'SR', GUY: 'GY', BEL: 'BE',
-  LUX: 'LU', MLT: 'MT', CYP: 'CY', AND: 'AD', LIE: 'LI', SMR: 'SM',
-  VSM: 'VA', MON: 'MC', FAR: 'FK', AIA: 'AI', MSK: 'MS', TCA: 'TC',
-  VGB: 'VG', SXM: 'SX', BLM: 'BL', MAF: 'MF', PYF: 'PF',
-  NCL: 'NC', WLF: 'WF', ATF: 'TF', IOT: 'IO', HMD: 'HM', PCN: 'PN',
-  SGS: 'GS', SPR: 'GS', FLK: 'FK', GIB: 'GI', SHN: 'SH', SPD: 'SH',
-  WES: 'PS', SSD: 'SS', KOS: 'XK', SSD: 'SS', SOM: 'SO', DJI: 'DJ',
-  COM: 'KM', MYT: 'YT', REU: 'RE', SPM: 'PM', NCL: 'NC', WLF: 'WF',
+  ARG: 'AR', AUS: 'AU', AUT: 'AT', BEL: 'BE', BFA: 'BF', BOL: 'BO',
+  BRA: 'BR', BUL: 'BG', CAM: 'KH', CAN: 'CA', CHI: 'CL', CHN: 'CN',
+  COL: 'CO', CRC: 'CR', CRO: 'HR', CIV: 'CI', CUW: 'CW', CPV: 'CV',
+  CZE: 'CZ', COD: 'CD', DEN: 'DK', DJI: 'DJ', ECU: 'EC', EGY: 'EG',
+  ENG: 'GB', ESP: 'ES', FRA: 'FR', GER: 'DE', GHA: 'GH', GRE: 'GR',
+  HAI: 'HT', HON: 'HN', HUN: 'HU', IDN: 'ID', IRN: 'IR', IRQ: 'IQ',
+  IRL: 'IE', ISL: 'IS', ISR: 'IL', ITA: 'IT', JAM: 'JM', JPN: 'JP',
+  JOR: 'JO', KAZ: 'KZ', KOR: 'KR', KOS: 'XK', KSA: 'SA', KUW: 'KW',
+  LBR: 'LR', LBY: 'LY', LTU: 'LT', LUX: 'LU', MAD: 'MG', MAR: 'MA',
+  MLT: 'MT', MEX: 'MX', MLI: 'ML', MNE: 'ME', MOZ: 'MZ', NAM: 'NA',
+  NCL: 'NC', NED: 'NL', NGA: 'NG', NOR: 'NO', NZL: 'NZ', OMA: 'OM',
+  PAN: 'PA', PAR: 'PY', PER: 'PE', PHI: 'PH', PNG: 'PG', POL: 'PL',
+  POR: 'PT', QAT: 'QA', ROU: 'RO', RSA: 'ZAM', RUS: 'RU', SAM: 'WS',
+  SCO: 'GB', SEN: 'SN', SER: 'RS', SGP: 'SG', SLE: 'SL', SLO: 'SI',
+  SLV: 'SV', SOL: 'SB', SOM: 'SO', SUR: 'SR', SVK: 'SK', SWE: 'SE',
+  SWI: 'CH', SUI: 'CH', SYR: 'SY', TAH: 'PF', TAN: 'TZ', THA: 'TH',
+  TPE: 'TW', TUN: 'TN', TUR: 'TR', TUV: 'TV', UAE: 'AE', UGA: 'UG',
+  UKR: 'UA', URU: 'UY', USA: 'US', UZB: 'UZ', VAN: 'VU', VEN: 'VE',
+  VIE: 'VN', WAL: 'GB', YEM: 'YE', ZAM: 'ZM', ZIM: 'ZW', ALG: 'DZ',
+  ANG: 'AO', ANT: 'AW', ASA: 'AS', AIA: 'AI', BAR: 'BB', BER: 'BM',
+  BLM: 'BL', BNB: 'BN', BHS: 'BS', BLZ: 'BZ', BEN: 'BJ', BOT: 'BW',
+  BRU: 'BN', BUR: 'BF', BUR: 'BI', CGO: 'CG', CAY: 'KY', CHA: 'TD',
+  COM: 'KM', COK: 'CK', DMA: 'DM', ESA: 'SV', FSM: 'FM', FRO: 'FO',
+  GAB: 'GA', GAM: 'GM', GEO: 'GE', GIB: 'GI', GRN: 'GL', GUA: 'GT',
+  GUM: 'GU', GUY: 'GY', GUF: 'GF', HKG: 'HK', IVR: 'CI', KEN: 'KE',
+  KIR: 'KI', KGZ: 'KG', LAO: 'LA', LAT: 'LV', LBN: 'LB', LES: 'LS',
+  LIE: 'LI', LTU: 'LT', LUX: 'LU', MAC: 'MO', MKD: 'MK', MWI: 'MW',
+  MHL: 'MH', MRI: 'MU', MYT: 'YT', MNE: 'ME', MNP: 'MP', MSR: 'MS',
+  MON: 'MC', MYA: 'MM', NCL: 'NC', NIC: 'NI', NRU: 'NR', NIU: 'NU',
+  PLW: 'PW', PAK: 'PK', PLE: 'PS', PAN: 'PA', PYF: 'PF', PER: 'PE',
+  PCA: 'PN', PUR: 'PR', REU: 'RE', RWA: 'RW', SKN: 'KN', LCA: 'LC',
+  VCT: 'VC', SMR: 'SM', STP: 'ST', SEN: 'SN', SYC: 'SC', SLE: 'SL',
+  SGP: 'SG', SXM: 'SX', SOL: 'SB', SOM: 'SO', SSD: 'SS', SRI: 'LK',
+  SUR: 'SR', SVK: 'SK', SVN: 'SI', SWZ: 'SZ', TJK: 'TJ', TZA: 'TZ',
+  TCA: 'TC', TLS: 'TL', TGA: 'TO', TTO: 'TT', TUV: 'TV', UGA: 'UG',
+  UKR: 'UA', URY: 'UY', USI: 'US', UZB: 'UZ', VAN: 'VU', VGB: 'VG',
+  VIR: 'VI', VSM: 'VA', WLF: 'WF', ESH: 'EH', ZMB: 'ZM', ZWE: 'ZW'
 };
 
 const getFlagEmoji = (fifaCode) => {
   const iso = fifaToEmoji[fifaCode];
   if (!iso || iso.length !== 2) return '🏳️';
-  const codePoints = iso
-    .toUpperCase()
-    .split('')
-    .map(char => 0x1F1E6 - 65 + char.charCodeAt(0));
+  const codePoints = iso.toUpperCase().split('').map(c => 0x1F1E6 - 65 + c.charCodeAt(0));
   return String.fromCodePoint(...codePoints);
+};
+
+const headToHeadData = {
+  'ARG-ENG': { played: 14, wins1: 6, wins2: 3, draws: 5, goals1: 21, goals2: 15, wcPlayed: 5, wcWins1: 3, wcWins2: 1, wcDraws: 1, firstMeeting: '1951', lastMeeting: '2005', notable: 'Maradona\'s "Hand of God" (1986), Beckham red card (1998)', rivalry: 'One of football\'s fiercest rivalries, intensified by the Falklands War' },
+  'ARG-BRA': { played: 114, wins1: 46, wins2: 43, draws: 25, goals1: 153, goals2: 152, wcPlayed: 4, wcWins1: 1, wcWins2: 2, wcDraws: 1, firstMeeting: '1914', lastMeeting: '2025', notable: 'Superclásico of the Americas, Messi vs Neymar era', rivalry: 'South America\'s greatest rivalry, 110+ years of history' },
+  'BRA-FRA': { played: 16, wins1: 6, wins2: 7, draws: 3, goals1: 27, goals2: 20, wcPlayed: 4, wcWins1: 1, wcWins2: 2, wcDraws: 1, firstMeeting: '1930', lastMeeting: '2026', notable: '1998 WC Final (France 3-0), 2006 WC QF (Zidane masterclass)', rivalry: 'Modern era dominance by France since 1998' },
+  'GER-ESP': { played: 26, wins1: 9, wins2: 9, draws: 8, goals1: 31, goals2: 32, wcPlayed: 5, wcWins1: 2, wcWins2: 1, wcDraws: 2, firstMeeting: '1935', lastMeeting: '2024', notable: '2010 WC Semi (Puyol goal), 2008 Euro Final (Torres goal)', rivalry: 'Perfectly balanced rivalry with 9 wins each' },
+  'ENG-BRA': { played: 27, wins1: 4, wins2: 11, draws: 12, goals1: 22, goals2: 33, wcPlayed: 5, wcWins1: 1, wcWins2: 3, wcDraws: 1, firstMeeting: '1956', lastMeeting: '2024', notable: '1970 WC Classic (Pelé), 2002 WC QF (Rivaldo theatrics)', rivalry: 'Brazil historically dominant in World Cup meetings' },
+  'ENG-GER': { played: 33, wins1: 12, wins2: 13, draws: 8, goals1: 44, goals2: 48, wcPlayed: 5, wcWins1: 3, wcWins2: 2, wcDraws: 0, firstMeeting: '1930', lastMeeting: '2010', notable: '1966 WC Final (Wembley Goal), 1990 WC Semi, 2010 WC R16 (Ghost Goal)', rivalry: 'Bitter rivalry with controversial World Cup history' },
+  'FRA-GER': { played: 33, wins1: 14, wins2: 13, draws: 6, goals1: 48, goals2: 44, wcPlayed: 5, wcWins1: 2, wcWins2: 2, wcDraws: 1, firstMeeting: '1931', lastMeeting: '2014', notable: '1958 WC Third Place, 1982 WC Semi (Harald Schumacher foul)', rivalry: 'Classic European rivalry with World Cup drama' },
+  'ARG-GER': { played: 20, wins1: 5, wins2: 6, draws: 9, goals1: 21, goals2: 26, wcPlayed: 7, wcWins1: 2, wcWins2: 2, wcDraws: 3, firstMeeting: '1958', lastMeeting: '2014', notable: '1986 & 1990 WC Finals, 2014 WC Final (Germany 1-0)', rivalry: 'Two World Cup finals between them' },
+  'BRA-GER': { played: 13, wins1: 5, wins2: 5, draws: 3, goals1: 23, goals2: 21, wcPlayed: 2, wcWins1: 1, wcWins2: 1, wcDraws: 0, firstMeeting: '1981', lastMeeting: '2018', notable: '2014 WC Semi (Germany 7-1 Brazil, the Mineirão)', rivalry: 'The 7-1 humiliation remains Brazil\'s darkest hour' },
+  'ESP-ITA': { played: 37, wins1: 10, wins2: 10, draws: 17, goals1: 35, goals2: 39, wcPlayed: 3, wcWins1: 1, wcWins2: 1, wcDraws: 1, firstMeeting: '1920', lastMeeting: '2023', notable: '2012 Euro Final (Spain 4-0 Italy)', rivalry: 'Mediterranean rivalry, perfectly balanced' },
+  'NED-GER': { played: 46, wins1: 12, wins2: 16, draws: 18, goals1: 62, goals2: 70, wcPlayed: 4, wcWins1: 1, wcWins2: 3, wcDraws: 0, firstMeeting: '1910', lastMeeting: '2019', notable: '1974 WC Final (Total Football vs Efficiency), 2010 WC Final', rivalry: 'The Netherlands seeking revenge for 1974 and 2010' },
+  'POR-ESP': { played: 41, wins1: 8, wins2: 17, draws: 16, goals1: 36, goals2: 54, wcPlayed: 3, wcWins1: 0, wcWins2: 2, wcDraws: 1, firstMeeting: '1935', lastMeeting: '2018', notable: '2018 WC Group Stage (Spain 3-3 Portugal, Ronaldo hat-trick)', rivalry: 'Iberian Derby, Spain dominant historically' },
+  'FRA-ENG': { played: 31, wins1: 9, wins2: 17, draws: 5, goals1: 32, goals2: 46, wcPlayed: 3, wcWins1: 2, wcWins2: 1, wcDraws: 0, firstMeeting: '1906', lastMeeting: '2012', notable: '1982 WC Semi (France won on penalties), 1966 WC QF', rivalry: 'Cross-Channel rivalry with World Cup knockout history' },
+  'BRA-ARG': { played: 114, wins1: 43, wins2: 46, draws: 25, goals1: 152, goals2: 153, wcPlayed: 4, wcWins1: 2, wcWins2: 1, wcDraws: 1, firstMeeting: '1914', lastMeeting: '2025', notable: 'Clásico Sudamericano, 110+ years', rivalry: 'South America\'s greatest and most passionate rivalry' },
 };
 
 const goldenBootData = [
@@ -79,7 +99,7 @@ export default function Stats() {
   const [team1, setTeam1] = useState('');
   const [team2, setTeam2] = useState('');
 
-  const teams = useMemo(() => {
+  const teamsList = useMemo(() => {
     return [...squadData].map(t => ({ code: t.code, name: t.name })).sort((a, b) => a.name.localeCompare(b.name));
   }, []);
 
@@ -111,6 +131,17 @@ export default function Stats() {
     });
   }, [allPlayers, filterPosition, filterTeam, searchName]);
 
+  const h2h = useMemo(() => {
+    if (!team1 || !team2 || team1 === team2) return null;
+    const key1 = `${team1}-${team2}`;
+    const key2 = `${team2}-${team1}`;
+    const data = headToHeadData[key1] || headToHeadData[key2];
+    if (data && key2 in headToHeadData) {
+      return { ...data, wins1: data.wins2, wins2: data.wins1, goals1: data.goals2, goals2: data.goals1, wcWins1: data.wcWins2, wcWins2: data.wcWins1 };
+    }
+    return data || null;
+  }, [team1, team2]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div className="section-header animate-fade-in-up">
@@ -121,29 +152,17 @@ export default function Stats() {
       <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Golden Boot race, player profiles, and head-to-head team comparisons.</p>
 
       <div className="tab-container">
-        <button 
-          className={`tab-btn ${activeTab === 'scorers' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('scorers')}
-        >
+        <button className={`tab-btn ${activeTab === 'scorers' ? 'active' : ''}`} onClick={() => setActiveTab('scorers')}>
           Golden Boot
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('players')}
-        >
+        <button className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`} onClick={() => setActiveTab('players')}>
           All Players
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('compare')}
-        >
-          Team Comparison
+        <button className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`} onClick={() => setActiveTab('compare')}>
+          <Swords size={16} /> Head-to-Head
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'champions' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('champions')}
-        >
-          <Crown size={16} /> Champions
+        <button className={`tab-btn ${activeTab === 'champions' ? 'active' : ''}`} onClick={() => setActiveTab('champions')}>
+          <Crown size={16} /> Top by Team
         </button>
       </div>
 
@@ -152,7 +171,6 @@ export default function Stats() {
           <h3 style={{ color: 'var(--color-gold)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Trophy size={24} /> Golden Boot Race
           </h3>
-          
           <div className="table-container">
             <table className="custom-table">
               <thead>
@@ -170,16 +188,10 @@ export default function Stats() {
               <tbody>
                 {goldenBootData.map((player) => (
                   <tr key={player.rank}>
-                    <td style={{ 
-                      fontWeight: 700, 
-                      color: player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-secondary)',
-                      fontSize: player.rank <= 3 ? '1.05rem' : '0.9rem'
-                    }}>
+                    <td style={{ fontWeight: 700, color: player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-secondary)' }}>
                       {player.rank}
                     </td>
-                    <td>
-                      <span style={{ fontWeight: 600 }}>{player.name}</span>
-                    </td>
+                    <td><span style={{ fontWeight: 600 }}>{player.name}</span></td>
                     <td>
                       <div className="team-cell">
                         <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(player.teamCode)}</span>
@@ -207,43 +219,25 @@ export default function Stats() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="card">
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <select 
-                value={filterPosition} 
-                onChange={(e) => setFilterPosition(e.target.value)}
-                className="form-control"
-                style={{ flex: 1, minWidth: '120px' }}
-              >
+              <select value={filterPosition} onChange={(e) => setFilterPosition(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '120px' }}>
                 <option value="ALL">All Positions</option>
                 <option value="GK">Goalkeepers</option>
                 <option value="DF">Defenders</option>
                 <option value="MF">Midfielders</option>
                 <option value="FW">Forwards</option>
               </select>
-              <select 
-                value={filterTeam} 
-                onChange={(e) => setFilterTeam(e.target.value)}
-                className="form-control"
-                style={{ flex: 1, minWidth: '150px' }}
-              >
+              <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '150px' }}>
                 <option value="ALL">All Teams</option>
-                {teams.map(t => (
+                {teamsList.map(t => (
                   <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
                 ))}
               </select>
               <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  placeholder="Search by name..."
-                  className="form-control"
-                  style={{ paddingLeft: '2.5rem' }}
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                />
+                <input type="text" placeholder="Search by name..." className="form-control" style={{ paddingLeft: '2.5rem' }} value={searchName} onChange={(e) => setSearchName(e.target.value)} />
               </div>
             </div>
           </div>
-
           <div className="card">
             <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Showing {filteredPlayers.length} of {allPlayers.length} players
@@ -263,17 +257,11 @@ export default function Stats() {
                 </thead>
                 <tbody>
                   {filteredPlayers.length === 0 ? (
-                    <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        No players match your filters.
-                      </td>
-                    </tr>
+                    <tr><td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No players match your filters.</td></tr>
                   ) : (
                     filteredPlayers.map((p, idx) => (
                       <tr key={`${p.teamCode}-${p.name}-${idx}`}>
-                        <td>
-                          <span style={{ fontWeight: 600 }}>{p.name}</span>
-                        </td>
+                        <td><span style={{ fontWeight: 600 }}>{p.name}</span></td>
                         <td>
                           <div className="team-cell">
                             <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(p.teamCode)}</span>
@@ -283,9 +271,7 @@ export default function Stats() {
                         <td>{p.position}</td>
                         <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{p.club}</td>
                         <td style={{ textAlign: 'center' }}>{p.age}</td>
-                        <td style={{ fontWeight: p.goals > 0 ? 700 : 400, color: p.goals > 0 ? 'var(--color-gold)' : 'var(--text-primary)', textAlign: 'center' }}>
-                          {p.goals}
-                        </td>
+                        <td style={{ fontWeight: p.goals > 0 ? 700 : 400, color: p.goals > 0 ? 'var(--color-gold)' : 'var(--text-primary)', textAlign: 'center' }}>{p.goals}</td>
                         <td style={{ textAlign: 'center' }}>{p.assists}</td>
                       </tr>
                     ))
@@ -301,21 +287,17 @@ export default function Stats() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="card">
             <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Target size={20} /> Team Comparison
+              <Swords size={20} /> Head-to-Head Comparison
             </h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-              Compare squads between any two qualified nations.
+              All-time head-to-head records sourced from Wikipedia and FIFA archives.
             </p>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <label className="form-label">Team 1</label>
-                <select 
-                  value={team1} 
-                  onChange={(e) => setTeam1(e.target.value)}
-                  className="form-control"
-                >
+                <select value={team1} onChange={(e) => setTeam1(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
-                  {teams.map(t => (
+                  {teamsList.map(t => (
                     <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
                   ))}
                 </select>
@@ -323,60 +305,153 @@ export default function Stats() {
               <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
               <div style={{ flex: 1, minWidth: '200px' }}>
                 <label className="form-label">Team 2</label>
-                <select 
-                  value={team2} 
-                  onChange={(e) => setTeam2(e.target.value)}
-                  className="form-control"
-                >
+                <select value={team2} onChange={(e) => setTeam2(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
-                  {teams.map(t => (
+                  {teamsList.map(t => (
                     <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
                   ))}
                 </select>
               </div>
             </div>
-            
-            {team1 && team2 && team1 !== team2 && (
-              <div style={{ marginTop: '1.5rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                  {[team1, team2].map(code => {
-                    const team = squadData.find(t => t.code === code);
-                    const teamPlayers = allPlayers.filter(p => p.teamCode === code);
-                    const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
-                    const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
-                    return (
-                      <div key={code} className="card" style={{
-                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
-                        borderColor: 'var(--color-gold)'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                          <span style={{ fontSize: '2.5rem' }}>{getFlagEmoji(code)}</span>
-                          <div>
-                            <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group}</p>
-                          </div>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
-                          <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
-                          </div>
-                          <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
-                          </div>
-                          <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+          </div>
+
+          {team1 && team2 && team1 !== team2 && h2h && (
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team1)}</span>
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team1)?.name}</p>
+                </div>
+                <div style={{ textAlign: 'center', padding: '1rem 2rem', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.3)' }}>
+                  <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-gold)' }}>{h2h.played}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Matches Played</p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team2)}</span>
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team2)?.name}</p>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(34,197,94,0.1)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.3)' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#22c55e' }}>{h2h.wins1}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{squadData.find(t => t.code === team1)?.name} Wins</p>
+                </div>
+                <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(148,163,184,0.1)', borderRadius: '8px', border: '1px solid rgba(148,163,184,0.3)' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8' }}>{h2h.draws}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Draws</p>
+                </div>
+                <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.3)' }}>
+                  <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#3b82f6' }}>{h2h.wins2}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{squadData.find(t => t.code === team2)?.name} Wins</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Goals Scored</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#22c55e' }}>{h2h.goals1}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>-</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#3b82f6' }}>{h2h.goals2}</span>
+                  </div>
+                </div>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>World Cup Meetings</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#22c55e' }}>{h2h.wcWins1}</span>
+                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{h2h.wcPlayed} matches</span>
+                    <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#3b82f6' }}>{h2h.wcWins2}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '1rem', background: 'rgba(212,175,55,0.05)', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.2)' }}>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-gold)', fontWeight: 600, marginBottom: '0.5rem' }}>Key Facts</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  <strong>First meeting:</strong> {h2h.firstMeeting} &nbsp;|&nbsp; <strong>Last meeting:</strong> {h2h.lastMeeting}
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginTop: '0.5rem' }}>
+                  <strong>Rivalry:</strong> {h2h.rivalry}
+                </p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginTop: '0.5rem' }}>
+                  <strong>Notable moments:</strong> {h2h.notable}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {team1 && team2 && team1 !== team2 && !h2h && (
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team1)}</span>
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team1)?.name}</p>
+                </div>
+                <div style={{ textAlign: 'center', padding: '1rem 2rem', background: 'rgba(148,163,184,0.1)', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.3)' }}>
+                  <p style={{ fontSize: '2rem', fontWeight: 800, color: '#94a3b8' }}>vs</p>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team2)}</span>
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team2)?.name}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                {[team1, team2].map(code => {
+                  const team = squadData.find(t => t.code === code);
+                  const teamPlayers = allPlayers.filter(p => p.teamCode === code);
+                  const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
+                  const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
+                  return (
+                    <div key={code} className="card" style={{ background: 'rgba(20,26,51,0.5)', borderColor: 'var(--color-gold)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <span style={{ fontSize: '2.5rem' }}>{getFlagEmoji(code)}</span>
+                        <div>
+                          <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group} &bull; FIFA #{team?.fifaRank}</p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '1rem' }}>
+                No historical head-to-head data available for this matchup. Select notable rivalries like England vs Argentina, Brazil vs France, or Germany vs Spain.
+              </p>
+            </div>
+          )}
+
+          {(!team1 || !team2 || team1 === team2) && (
+            <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
+              <Swords size={48} color="var(--text-muted)" style={{ marginBottom: '1rem' }} />
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Select two different teams above to see their head-to-head record</p>
+              <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
+                {Object.keys(headToHeadData).slice(0, 8).map(key => {
+                  const [c1, c2] = key.split('-');
+                  return (
+                    <button key={key} className="btn btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => { setTeam1(c1); setTeam2(c2); }}>
+                      {getFlagEmoji(c1)} vs {getFlagEmoji(c2)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -385,9 +460,7 @@ export default function Stats() {
           <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Crown size={24} /> Tournament Top Scorers by Team
           </h3>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            Top scorer from each qualified nation at the 2026 FIFA World Cup.
-          </p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Top scorer from each qualified nation at the 2026 FIFA World Cup.</p>
           <div className="table-container">
             <table className="custom-table">
               <thead>
@@ -400,9 +473,7 @@ export default function Stats() {
               </thead>
               <tbody>
                 {[...squadData].sort((a, b) => a.name.localeCompare(b.name)).map(team => {
-                  const teamScorers = goldenBootData
-                    .filter(s => s.teamCode === team.code)
-                    .sort((a, b) => b.goals - a.goals);
+                  const teamScorers = goldenBootData.filter(s => s.teamCode === team.code).sort((a, b) => b.goals - a.goals);
                   const topScorer = teamScorers[0];
                   if (!topScorer) return null;
                   return (
