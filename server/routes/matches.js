@@ -393,4 +393,24 @@ router.post('/:id/result', authenticateToken, requireAdmin, async (req, res) => 
   }
 });
 
+// PATCH /api/matches/:id/status
+// Admin sets match status (UPCOMING, LIVE, COMPLETED) without modifying events
+router.patch('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
+  const matchId = parseInt(req.params.id);
+  const { status } = req.body;
+
+  const validStatuses = ['UPCOMING', 'LIVE', 'COMPLETED'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Status must be UPCOMING, LIVE, or COMPLETED' });
+  }
+
+  try {
+    await query('UPDATE matches SET status = ? WHERE id = ?;', [status, matchId]);
+    res.json({ message: `Match status updated to ${status}` });
+  } catch (error) {
+    console.error('Error updating match status:', error);
+    res.status(500).json({ error: 'Server error updating match status' });
+  }
+});
+
 module.exports = router;
