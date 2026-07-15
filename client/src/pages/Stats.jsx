@@ -3,45 +3,41 @@ import { Trophy, Users, ArrowRight, Search, Crown, BarChart3, Swords, Info } fro
 import { teams as squadData } from '../data/squadData';
 
 const fifaToIso = {
-  ARG:'AR',AUS:'AU',AUT:'AT',BEL:'BE',BFA:'BF',BOL:'BO',BRA:'BR',BUL:'BG',
-  CAN:'CA',CHI:'CL',CHN:'CN',COL:'CO',CRC:'CR',CRO:'HR',CIV:'CI',CUW:'CW',
-  CPV:'CV',CZE:'CZ',COD:'CD',DEN:'DK',ECU:'EC',EGY:'EG',ENG:'GB',ESP:'ES',
-  FRA:'FR',GER:'DE',GHA:'GH',GRE:'GR',HAI:'HT',HUN:'HU',IRN:'IR',IRQ:'IQ',
-  ISL:'IS',ITA:'IT',JAM:'JM',JPN:'JP',JOR:'JO',KAZ:'KZ',KOR:'KR',KOS:'XK',
-  KSA:'SA',MAR:'MA',MEX:'MX',NED:'NL',NZL:'NZ',NOR:'NO',NGA:'NG',PAN:'PA',
-  PAR:'PY',PER:'PE',POL:'PL',POR:'PT',QAT:'QA',ROU:'RO',RSA:'ZA',SCO:'GB',
-  SEN:'SN',SER:'RS',SUI:'CH',SWE:'SE',TUN:'TN',TUR:'TR',UKR:'UA',URU:'UY',
-  USA:'US',UZB:'UZ',VEN:'VE',WAL:'GB',BIH:'BA',HTI:'HT',ECU:'EC',ALG:'DZ',
-  AUT:'AT',JOR:'JO',COL:'CO',CMR:'CM',KEN:'KE',UGA:'UG',ZAM:'ZM',ZIM:'ZW',
-  MOZ:'MZ',MAD:'MG',NAM:'NA',SUR:'SR',GUY:'GY',BOL:'BO',TAN:'TZ',MLI:'ML',
-  DJI:'DJ',SOM:'SO',SOL:'SB',FIJ:'FJ',PNG:'PG',SAM:'WS',TGA:'TO',VAN:'VU',
-  PHI:'PH',THA:'TH',VNM:'VN',TLS:'TL',LAO:'LA',MYA:'MM',CAM:'KH',SIN:'SG',
-  BRU:'BN',IDN:'ID',IND:'IN',PAK:'PK',BAN:'BD',SRI:'LK',NEP:'NP',AFG:'AF',
-  GEO:'GE',ARM:'AM',AZE:'AZ',KGZ:'KG',TJK:'TJ',TKM:'TM',CHN:'CN',PRK:'KP',
-  TPE:'TW',HKG:'HK',MAC:'MO',MGL:'MN',MAS:'MY',SYR:'SY',LBN:'LB',PLE:'PS',
-  OMA:'OM',UAE:'AE',KUW:'KW',BHR:'BH',YEM:'YE',ALB:'AL',BUL:'BG',HUN:'HU',
-  SVK:'SK',SLO:'SI',EST:'EE',LAT:'LV',LTU:'LT',BLR:'BY',MNE:'ME',MKD:'MK',
-  GAB:'GA',NIG:'NE',CHA:'TD',CGO:'CG',GNB:'GW',GAM:'GM',LBR:'LR',SSD:'SS',
-  ER:'ER',CPV:'CV',COM:'KM',MRI:'MU',SEY:'SC',DMA:'DM',GRN:'GD',ANT:'AW',
-  BAR:'BB',SKN:'KN',LCA:'LC',VCT:'VC',TCA:'TC',VGB:'VG',AIA:'AI',BER:'BM',
-  CAY:'KY',MSK:'MS',SMR:'SM',LIE:'LI',AND:'AD',MON:'MC',FRO:'FO',MLT:'MT',
-  CYP:'CY',LUX:'LU',GIB:'GI',ASA:'AS',GUM:'GU',MHL:'MH',FSM:'FM',NRU:'NR',
-  KIR:'KI',TUV:'TV',PLW:'PW',NCL:'NC',PYF:'PF',TON:'TO',PAN:'PA',KUW:'KW',
+  ARG:'ar',AUS:'au',AUT:'at',BEL:'be',BFA:'bf',BOL:'bo',BRA:'br',BUL:'bg',
+  CAN:'ca',CHI:'cl',CHN:'cn',COL:'co',CRC:'cr',CRO:'hr',CIV:'ci',CUW:'cw',
+  CPV:'cv',CZE:'cz',COD:'cd',DEN:'dk',ECU:'ec',EGY:'eg',ENG:'gb-eng',ESP:'es',
+  FRA:'fr',GER:'de',GHA:'gh',GRE:'gr',HAI:'ht',HUN:'hu',IRN:'ir',IRQ:'iq',
+  ISL:'is',ITA:'it',JAM:'jm',JPN:'jp',JOR:'jo',KAZ:'kz',KOR:'kr',KOS:'xk',
+  KSA:'sa',MAR:'ma',MEX:'mx',NED:'nl',NZL:'nz',NOR:'no',NGA:'ng',PAN:'pa',
+  PAR:'py',PER:'pe',POL:'pl',POR:'pt',QAT:'qa',ROU:'ro',RSA:'za',SCO:'gb-sct',
+  SEN:'sn',SER:'rs',SUI:'ch',SWE:'se',TUN:'tn',TUR:'tr',UKR:'ua',URU:'uy',
+  USA:'us',UZB:'uz',VEN:'ve',WAL:'gb-wls',BIH:'ba',ALG:'dz',CMR:'cm',
+  KEN:'ke',UGA:'ug',ZAM:'zm',ZIM:'zw',MOZ:'mz',MAD:'mg',NAM:'na',SUR:'sr',
+  GUY:'gy',TAN:'tz',MLI:'ml',DJI:'dj',SOM:'so',SOL:'sb',FIJ:'fj',PNG:'pg',
+  SAM:'ws',TGA:'to',VAN:'vu',PHI:'ph',THA:'th',VNM:'vn',TLS:'tl',LAO:'la',
+  MYA:'mm',CAM:'kh',SIN:'sg',IDN:'id',IND:'in',PAK:'pk',BAN:'bd',SRI:'lk',
+  NEP:'np',AFG:'af',GEO:'ge',ARM:'am',AZE:'az',KGZ:'kg',TJK:'tj',TKM:'tm',
+  PRK:'kp',TPE:'tw',HKG:'hk',MAC:'mo',MGL:'mn',MAS:'my',SYR:'sy',LBN:'lb',
+  PLE:'ps',OMA:'om',UAE:'ae',KUW:'kw',BHR:'bh',YEM:'ye',ALB:'al',SVK:'sk',
+  SLO:'si',EST:'ee',LAT:'lv',LTU:'lt',BLR:'by',MNE:'me',MKD:'mk',
+  GAB:'ga',NIG:'ne',CHA:'td',CGO:'cg',GNB:'gw',GAM:'gm',LBR:'lr',SSD:'ss',
+  COM:'km',MRI:'mu',DMA:'dm',GRN:'gd',ANT:'aw',BAR:'bb',SKN:'kn',LCA:'lc',
+  VCT:'vc',TCA:'tc',VGB:'vg',BER:'bm',SMR:'sm',LIE:'li',AND:'ad',MON:'mc',
+  FRO:'fo',MLT:'mt',CYP:'cy',LUX:'lu',GIB:'gi',MAS:'my',ERI:'er',
 };
 
-function getFlagEmoji(code) {
+function getFlagUrl(code) {
   const iso = fifaToIso[code];
-  if (!iso || iso.length !== 2) return null;
-  const a = iso.charCodeAt(0);
-  const b = iso.charCodeAt(1);
-  if (a < 65 || a > 90 || b < 65 || b > 90) return null;
-  return String.fromCodePoint(0x1F1E6 + a - 65, 0x1F1E6 + b - 65);
+  if (!iso) return null;
+  return 'https://flagcdn.com/w40/' + iso + '.png';
 }
 
 function Flag({ code, size }) {
-  const emoji = getFlagEmoji(code);
-  if (!emoji) return <span style={{ fontSize: size || '1.2rem', opacity: 0.4 }}>🏳️</span>;
-  return <span style={{ fontSize: size || '1.2rem' }}>{emoji}</span>;
+  const url = getFlagUrl(code);
+  if (!url) return <span style={{ fontSize: size || '0.8rem', opacity: 0.4 }}>[{code}]</span>;
+  const h = size === '3rem' ? '40px' : size === '2rem' ? '28px' : '18px';
+  const w = size === '3rem' ? '60px' : size === '2rem' ? '40px' : '26px';
+  return <img src={url} alt={code} style={{ width: w, height: h, borderRadius: '2px', verticalAlign: 'middle', display: 'inline-block' }} />;
 }
 
 const headToHeadData = {
@@ -198,7 +194,7 @@ export default function Stats() {
               </select>
               <select value={filterTeam} onChange={e => setFilterTeam(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '150px' }}>
                 <option value="ALL">All Teams</option>
-                {teamsList.map(t => <option key={t.code} value={t.code}>{getFlagEmoji(t.code) || '🏳️'} {t.name}</option>)}
+                {teamsList.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
               </select>
               <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -242,7 +238,7 @@ export default function Stats() {
                 <label className="form-label">Team 1</label>
                 <select value={team1} onChange={e => setTeam1(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
-                  {teamsList.map(t => <option key={t.code} value={t.code}>{getFlagEmoji(t.code) || '🏳️'} {t.name}</option>)}
+                  {teamsList.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
                 </select>
               </div>
               <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
@@ -250,7 +246,7 @@ export default function Stats() {
                 <label className="form-label">Team 2</label>
                 <select value={team2} onChange={e => setTeam2(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
-                  {teamsList.map(t => <option key={t.code} value={t.code}>{getFlagEmoji(t.code) || '🏳️'} {t.name}</option>)}
+                  {teamsList.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
                 </select>
               </div>
             </div>
@@ -343,7 +339,7 @@ export default function Stats() {
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
                 {Object.keys(headToHeadData).slice(0, 10).map(key => {
                   const [c1, c2] = key.split('-');
-                  return <button key={key} className="btn btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => { setTeam1(c1); setTeam2(c2); }}>{getFlagEmoji(c1)} vs {getFlagEmoji(c2)}</button>;
+                  return <button key={key} className="btn btn-sm" style={{ fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => { setTeam1(c1); setTeam2(c2); }}><Flag code={c1} /> vs <Flag code={c2} /></button>;
                 })}
               </div>
             </div>
