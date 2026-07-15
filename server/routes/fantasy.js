@@ -104,7 +104,7 @@ router.post('/team', authenticateToken, async (req, res) => {
       `, [teamId]);
 
       const totalCost = parseFloat((budgetResult[0] && budgetResult[0].total_cost) || 0);
-      if (totalCost > 100.0) {
+      if (totalCost > 150.0) {
         throw new Error(`Squad budget exceeded! Total cost is ${totalCost}m. Max budget allowed is 150.0m.`);
       }
 
