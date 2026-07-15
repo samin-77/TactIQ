@@ -1,69 +1,71 @@
 import { useState, useMemo } from 'react';
-import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3, Swords } from 'lucide-react';
+import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3, Swords, Info } from 'lucide-react';
 import { teams as squadData } from '../data/squadData';
 
-const fifaToEmoji = {
-  ARG: 'AR', AUS: 'AU', AUT: 'AT', BEL: 'BE', BFA: 'BF', BOL: 'BO',
-  BRA: 'BR', BUL: 'BG', CAM: 'KH', CAN: 'CA', CHI: 'CL', CHN: 'CN',
-  COL: 'CO', CRC: 'CR', CRO: 'HR', CIV: 'CI', CUW: 'CW', CPV: 'CV',
-  CZE: 'CZ', COD: 'CD', DEN: 'DK', DJI: 'DJ', ECU: 'EC', EGY: 'EG',
-  ENG: 'GB', ESP: 'ES', FRA: 'FR', GER: 'DE', GHA: 'GH', GRE: 'GR',
-  HAI: 'HT', HON: 'HN', HUN: 'HU', IDN: 'ID', IRN: 'IR', IRQ: 'IQ',
-  IRL: 'IE', ISL: 'IS', ISR: 'IL', ITA: 'IT', JAM: 'JM', JPN: 'JP',
-  JOR: 'JO', KAZ: 'KZ', KOR: 'KR', KOS: 'XK', KSA: 'SA', KUW: 'KW',
-  LBR: 'LR', LBY: 'LY', LTU: 'LT', LUX: 'LU', MAD: 'MG', MAR: 'MA',
-  MLT: 'MT', MEX: 'MX', MLI: 'ML', MNE: 'ME', MOZ: 'MZ', NAM: 'NA',
-  NCL: 'NC', NED: 'NL', NGA: 'NG', NOR: 'NO', NZL: 'NZ', OMA: 'OM',
-  PAN: 'PA', PAR: 'PY', PER: 'PE', PHI: 'PH', PNG: 'PG', POL: 'PL',
-  POR: 'PT', QAT: 'QA', ROU: 'RO', RSA: 'ZAM', RUS: 'RU', SAM: 'WS',
-  SCO: 'GB', SEN: 'SN', SER: 'RS', SGP: 'SG', SLE: 'SL', SLO: 'SI',
-  SLV: 'SV', SOL: 'SB', SOM: 'SO', SUR: 'SR', SVK: 'SK', SWE: 'SE',
-  SWI: 'CH', SUI: 'CH', SYR: 'SY', TAH: 'PF', TAN: 'TZ', THA: 'TH',
-  TPE: 'TW', TUN: 'TN', TUR: 'TR', TUV: 'TV', UAE: 'AE', UGA: 'UG',
-  UKR: 'UA', URU: 'UY', USA: 'US', UZB: 'UZ', VAN: 'VU', VEN: 'VE',
-  VIE: 'VN', WAL: 'GB', YEM: 'YE', ZAM: 'ZM', ZIM: 'ZW', ALG: 'DZ',
-  ANG: 'AO', ANT: 'AW', ASA: 'AS', AIA: 'AI', BAR: 'BB', BER: 'BM',
-  BLM: 'BL', BNB: 'BN', BHS: 'BS', BLZ: 'BZ', BEN: 'BJ', BOT: 'BW',
-  BRU: 'BN', BUR: 'BF', BUR: 'BI', CGO: 'CG', CAY: 'KY', CHA: 'TD',
-  COM: 'KM', COK: 'CK', DMA: 'DM', ESA: 'SV', FSM: 'FM', FRO: 'FO',
-  GAB: 'GA', GAM: 'GM', GEO: 'GE', GIB: 'GI', GRN: 'GL', GUA: 'GT',
-  GUM: 'GU', GUY: 'GY', GUF: 'GF', HKG: 'HK', IVR: 'CI', KEN: 'KE',
-  KIR: 'KI', KGZ: 'KG', LAO: 'LA', LAT: 'LV', LBN: 'LB', LES: 'LS',
-  LIE: 'LI', LTU: 'LT', LUX: 'LU', MAC: 'MO', MKD: 'MK', MWI: 'MW',
-  MHL: 'MH', MRI: 'MU', MYT: 'YT', MNE: 'ME', MNP: 'MP', MSR: 'MS',
-  MON: 'MC', MYA: 'MM', NCL: 'NC', NIC: 'NI', NRU: 'NR', NIU: 'NU',
-  PLW: 'PW', PAK: 'PK', PLE: 'PS', PAN: 'PA', PYF: 'PF', PER: 'PE',
-  PCA: 'PN', PUR: 'PR', REU: 'RE', RWA: 'RW', SKN: 'KN', LCA: 'LC',
-  VCT: 'VC', SMR: 'SM', STP: 'ST', SEN: 'SN', SYC: 'SC', SLE: 'SL',
-  SGP: 'SG', SXM: 'SX', SOL: 'SB', SOM: 'SO', SSD: 'SS', SRI: 'LK',
-  SUR: 'SR', SVK: 'SK', SVN: 'SI', SWZ: 'SZ', TJK: 'TJ', TZA: 'TZ',
-  TCA: 'TC', TLS: 'TL', TGA: 'TO', TTO: 'TT', TUV: 'TV', UGA: 'UG',
-  UKR: 'UA', URY: 'UY', USI: 'US', UZB: 'UZ', VAN: 'VU', VGB: 'VG',
-  VIR: 'VI', VSM: 'VA', WLF: 'WF', ESH: 'EH', ZMB: 'ZM', ZWE: 'ZW'
+const flagMap = {
+  CZE: '🇨🇿', MEX: '🇲🇽', RSA: '🇿🇦', KOR: '🇰🇷', BIH: '🇧🇦', CAN: '🇨🇦',
+  QAT: '🇶🇦', SUI: '🇨🇭', BRA: '🇧🇷', HAI: '🇭🇹', MAR: '🇲🇦', SCO: '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  AUS: '🇦🇺', PAR: '🇵🇾', TUR: '🇹🇷', USA: '🇺🇸', CUW: '🇨🇼', ECU: '🇪🇨',
+  GER: '🇩🇪', CIV: '🇨🇮', JPN: '🇯🇵', NED: '🇳🇱', SWE: '🇸🇪', TUN: '🇹🇳',
+  BEL: '🇧🇪', EGY: '🇪🇬', IRN: '🇮🇷', NZL: '🇳🇿', CPV: '🇨🇻', KSA: '🇸🇦',
+  ESP: '🇪🇸', URU: '🇺🇾', FRA: '🇫🇷', IRQ: '🇮🇶', NOR: '🇳🇴', SEN: '🇸🇳',
+  ALG: '🇩🇿', ARG: '🇦🇷', AUT: '🇦🇹', JOR: '🇯🇴', COL: '🇨🇴', COD: '🇨🇩',
+  POR: '🇵🇹', UZB: '🇺🇿', CRO: '🇭🇷', ENG: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', GHA: '🇬🇭', PAN: '🇵🇦',
+  PER: '🇵🇪', POL: '🇵🇱', UKR: '🇺🇦', URU: '🇺🇾', VEN: '🇻🇪', WAL: '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+  SRB: '🇷🇸', JAM: '🇯🇲', GAB: '🇬🇦', BOL: '🇧🇴', TAN: '🇹🇿', NGA: '🇳🇬',
+  MLI: '🇲🇱', CMR: '🇨🇲', KEN: '🇰🇪', RWA: '🇷🇼', UGA: '🇺🇬', ZAM: '🇿🇲',
+  ZIM: '🇿🇼', MOZ: '🇲🇿', MAD: '🇲🇬', BOT: '🇧🇼', NAM: '🇳🇦', SEN: '🇸🇳',
+  SUR: '🇸🇷', GUY: '🇬🇾', BAR: '🇧🇧', SKN: '🇰🇳', LCA: '🇱🇨', VCT: '🇻🇨',
+  DMA: '🇩🇲', GRN: '🇬🇩', ANT: '🇦🇼', BER: '🇧🇲', CAY: '🇰🇾', TCA: '🇹🇨',
+  VGB: '🇻🇬', AIA: '🇦🇮', MSK: '🇲🇸', SMR: '🇸🇲', LIE: '🇱🇮', AND: '🇦🇩',
+  MON: '🇲🇨', FAR: '🇫🇴', ISL: '🇮🇸', MLT: '🇲🇹', CYP: '🇨🇾', LUX: '🇱🇺',
+  GIB: '🇬🇮', GEO: '🇬🇪', ARM: '🇦🇲', AZE: '🇦🇿', KAZ: '🇰🇿', KGZ: '🇰🇬',
+  TJK: '🇹🇯', TKM: '🇹🇲', NCL: '🇳🇨', FIJ: '🇫🇯', PNG: '🇵🇬', SOL: '🇸🇧',
+  TAH: '🇵🇫', SAM: '🇼🇸', TGA: '🇹🇴', VAN: '🇻🇺', PLW: '🇵🇼', GUM: '🇬🇺',
+  ASA: '🇦🇸', MHL: '🇲🇭', FSM: '🇫🇲', NRU: '🇳🇷', KIR: '🇰🇮', TUV: '🇹🇻',
+  MYA: '🇲🇲', LAO: '🇱🇦', CAM: '🇰🇭', TLS: '🇹🇱', PHI: '🇵🇭', THA: '🇹🇭',
+  VNM: '🇻🇳', SIN: '🇸🇬', BRU: '🇧🇳', MAC: '🇲🇴', HKG: '🇭🇰', TPE: '🇹🇼',
+  BAN: '🇧🇩', SRI: '🇱🇰', NEP: '🇳🇵', BHU: '🇧🇹', MLD: '🇲🇻', AFG: '🇦🇫',
+  ALB: '🇦🇱', BUL: '🇧🇬', GRE: '🇬🇷', HUN: '🇭🇺', ROU: '🇷🇴', SVK: '🇸🇰',
+  SLO: '🇸🇮', EST: '🇪🇪', LAT: '🇱🇻', LTU: '🇱🇹', BLR: '🇧🇾', MNE: '🇲🇪',
+  MKD: '🇲🇰', KOS: '🇽🇰', AND: '🇦🇩', LIE: '🇱🇮', SMR: '🇸🇲', MON: '🇲🇨',
+  ERI: '🇪🇷', SSD: '🇸🇸', CTI: '🇨🇮', LBR: '🇱🇷', GAM: '🇬🇲', GNB: '🇬🇼',
+  GBS: '🇬🇼', BFA: '🇧🇫', NIG: '🇳🇪', CHA: '🇹🇩', CAF: '🇨🇫', CGO: '🇨🇬',
+  GAB: '🇬🇦', EQG: '🇬🇶', SAO: '🇸🇹', SEY: '🇸🇨', COM: '🇰🇲', MRI: '🇲🇺',
+  DJI: '🇩🇯', SOL: '🇸🇴', YEM: '🇾🇪', SYR: '🇸🇾', LBN: '🇱🇧', JOR: '🇯🇴',
+  PLE: '🇵🇸', OMA: '🇴🇲', UAE: '🇦🇪', KUW: '🇰🇼', BHR: '🇧🇭', QAT: '🇶🇦',
+  KSA: '🇸🇦', YEM: '🇾🇪', IRQ: '🇮🇶', IRN: '🇮🇷', AFG: '🇦🇫', PAK: '🇵🇰',
+  IND: '🇮🇳', BGD: '🇧🇩', SRI: '🇱🇰', NEP: '🇳🇵', BTN: '🇧🇹', MDV: '🇲🇻',
+  MLT: '🇲🇹', CYP: '🇨🇾', GEO: '🇬🇪', ARM: '🇦🇲', AZE: '🇦🇿', KAZ: '🇰🇿',
+  KGZ: '🇰🇬', TJK: '🇹🇯', TKM: '🇹🇲', UZB: '🇺🇿', CHN: '🇨🇳', JPN: '🇯🇵',
+  KOR: '🇰🇷', PRK: '🇰🇵', TPE: '🇹🇼', HKG: '🇭🇰', MAC: '🇲🇴', MGL: '🇲🇳',
+  VNM: '🇻🇳', THA: '🇹🇭', MYA: '🇲🇲', LAO: '🇱🇦', CAM: '🇰🇭', BRU: '🇧🇳',
+  SIN: '🇸🇬', PHI: '🇵🇭', MAS: '🇲🇾', IDN: '🇮🇩', TLS: '🇹🇱', AUS: '🇦🇺',
+  NZL: '🇳🇿', PNG: '🇵🇬', FIJ: '🇫🇯', SOL: '🇸🇧', VAN: '🇻🇺', TON: '🇹🇴',
+  SAM: '🇼🇸', PLW: '🇵🇼', GUM: '🇬🇺', MHL: '🇲🇭', FSM: '🇫🇲', NRU: '🇳🇷',
+  KIR: '🇰🇮', TUV: '🇹🇻', ASA: '🇦🇸', NCL: '🇳🇨', PYF: '🇵🇫',
 };
 
-const getFlagEmoji = (fifaCode) => {
-  const iso = fifaToEmoji[fifaCode];
-  if (!iso || iso.length !== 2) return '🏳️';
-  const codePoints = iso.toUpperCase().split('').map(c => 0x1F1E6 - 65 + c.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
+function Flag({ code, size = '1.2rem' }) {
+  const emoji = flagMap[code];
+  if (emoji) return <span style={{ fontSize: size }}>{emoji}</span>;
+  return <span style={{ fontSize: size, opacity: 0.5 }}>🏳️</span>;
+}
 
 const headToHeadData = {
   'ARG-ENG': { played: 14, wins1: 6, wins2: 3, draws: 5, goals1: 21, goals2: 15, wcPlayed: 5, wcWins1: 3, wcWins2: 1, wcDraws: 1, firstMeeting: '1951', lastMeeting: '2005', notable: 'Maradona\'s "Hand of God" (1986), Beckham red card (1998)', rivalry: 'One of football\'s fiercest rivalries, intensified by the Falklands War' },
   'ARG-BRA': { played: 114, wins1: 46, wins2: 43, draws: 25, goals1: 153, goals2: 152, wcPlayed: 4, wcWins1: 1, wcWins2: 2, wcDraws: 1, firstMeeting: '1914', lastMeeting: '2025', notable: 'Superclásico of the Americas, Messi vs Neymar era', rivalry: 'South America\'s greatest rivalry, 110+ years of history' },
   'BRA-FRA': { played: 16, wins1: 6, wins2: 7, draws: 3, goals1: 27, goals2: 20, wcPlayed: 4, wcWins1: 1, wcWins2: 2, wcDraws: 1, firstMeeting: '1930', lastMeeting: '2026', notable: '1998 WC Final (France 3-0), 2006 WC QF (Zidane masterclass)', rivalry: 'Modern era dominance by France since 1998' },
   'GER-ESP': { played: 26, wins1: 9, wins2: 9, draws: 8, goals1: 31, goals2: 32, wcPlayed: 5, wcWins1: 2, wcWins2: 1, wcDraws: 2, firstMeeting: '1935', lastMeeting: '2024', notable: '2010 WC Semi (Puyol goal), 2008 Euro Final (Torres goal)', rivalry: 'Perfectly balanced rivalry with 9 wins each' },
-  'ENG-BRA': { played: 27, wins1: 4, wins2: 11, draws: 12, goals1: 22, goals2: 33, wcPlayed: 5, wcWins1: 1, wcWins2: 3, wcDraws: 1, firstMeeting: '1956', lastMeeting: '2024', notable: '1970 WC Classic (Pelé), 2002 WC QF (Rivaldo theatrics)', rivalry: 'Brazil historically dominant in World Cup meetings' },
-  'ENG-GER': { played: 33, wins1: 12, wins2: 13, draws: 8, goals1: 44, goals2: 48, wcPlayed: 5, wcWins1: 3, wcWins2: 2, wcDraws: 0, firstMeeting: '1930', lastMeeting: '2010', notable: '1966 WC Final (Wembley Goal), 1990 WC Semi, 2010 WC R16 (Ghost Goal)', rivalry: 'Bitter rivalry with controversial World Cup history' },
-  'FRA-GER': { played: 33, wins1: 14, wins2: 13, draws: 6, goals1: 48, goals2: 44, wcPlayed: 5, wcWins1: 2, wcWins2: 2, wcDraws: 1, firstMeeting: '1931', lastMeeting: '2014', notable: '1958 WC Third Place, 1982 WC Semi (Harald Schumacher foul)', rivalry: 'Classic European rivalry with World Cup drama' },
-  'ARG-GER': { played: 20, wins1: 5, wins2: 6, draws: 9, goals1: 21, goals2: 26, wcPlayed: 7, wcWins1: 2, wcWins2: 2, wcDraws: 3, firstMeeting: '1958', lastMeeting: '2014', notable: '1986 & 1990 WC Finals, 2014 WC Final (Germany 1-0)', rivalry: 'Two World Cup finals between them' },
   'BRA-GER': { played: 13, wins1: 5, wins2: 5, draws: 3, goals1: 23, goals2: 21, wcPlayed: 2, wcWins1: 1, wcWins2: 1, wcDraws: 0, firstMeeting: '1981', lastMeeting: '2018', notable: '2014 WC Semi (Germany 7-1 Brazil, the Mineirão)', rivalry: 'The 7-1 humiliation remains Brazil\'s darkest hour' },
   'ESP-ITA': { played: 37, wins1: 10, wins2: 10, draws: 17, goals1: 35, goals2: 39, wcPlayed: 3, wcWins1: 1, wcWins2: 1, wcDraws: 1, firstMeeting: '1920', lastMeeting: '2023', notable: '2012 Euro Final (Spain 4-0 Italy)', rivalry: 'Mediterranean rivalry, perfectly balanced' },
   'NED-GER': { played: 46, wins1: 12, wins2: 16, draws: 18, goals1: 62, goals2: 70, wcPlayed: 4, wcWins1: 1, wcWins2: 3, wcDraws: 0, firstMeeting: '1910', lastMeeting: '2019', notable: '1974 WC Final (Total Football vs Efficiency), 2010 WC Final', rivalry: 'The Netherlands seeking revenge for 1974 and 2010' },
   'POR-ESP': { played: 41, wins1: 8, wins2: 17, draws: 16, goals1: 36, goals2: 54, wcPlayed: 3, wcWins1: 0, wcWins2: 2, wcDraws: 1, firstMeeting: '1935', lastMeeting: '2018', notable: '2018 WC Group Stage (Spain 3-3 Portugal, Ronaldo hat-trick)', rivalry: 'Iberian Derby, Spain dominant historically' },
   'FRA-ENG': { played: 31, wins1: 9, wins2: 17, draws: 5, goals1: 32, goals2: 46, wcPlayed: 3, wcWins1: 2, wcWins2: 1, wcDraws: 0, firstMeeting: '1906', lastMeeting: '2012', notable: '1982 WC Semi (France won on penalties), 1966 WC QF', rivalry: 'Cross-Channel rivalry with World Cup knockout history' },
-  'BRA-ARG': { played: 114, wins1: 43, wins2: 46, draws: 25, goals1: 152, goals2: 153, wcPlayed: 4, wcWins1: 2, wcWins2: 1, wcDraws: 1, firstMeeting: '1914', lastMeeting: '2025', notable: 'Clásico Sudamericano, 110+ years', rivalry: 'South America\'s greatest and most passionate rivalry' },
+  'FRA-GER': { played: 33, wins1: 14, wins2: 13, draws: 6, goals1: 48, goals2: 44, wcPlayed: 5, wcWins1: 2, wcWins2: 2, wcDraws: 1, firstMeeting: '1931', lastMeeting: '2014', notable: '1958 WC Third Place, 1982 WC Semi (Schumacher foul)', rivalry: 'Classic European rivalry with World Cup drama' },
+  'ARG-GER': { played: 20, wins1: 5, wins2: 6, draws: 9, goals1: 21, goals2: 26, wcPlayed: 7, wcWins1: 2, wcWins2: 2, wcDraws: 3, firstMeeting: '1958', lastMeeting: '2014', notable: '1986 & 1990 WC Finals, 2014 WC Final (Germany 1-0)', rivalry: 'Two World Cup finals between them' },
+  'ENG-BRA': { played: 27, wins1: 4, wins2: 11, draws: 12, goals1: 22, goals2: 33, wcPlayed: 5, wcWins1: 1, wcWins2: 3, wcDraws: 1, firstMeeting: '1956', lastMeeting: '2024', notable: '1970 WC Classic (Pelé), 2002 WC QF (Rivaldo theatrics)', rivalry: 'Brazil historically dominant in World Cup meetings' },
+  'ENG-GER': { played: 33, wins1: 12, wins2: 13, draws: 8, goals1: 44, goals2: 48, wcPlayed: 5, wcWins1: 3, wcWins2: 2, wcDraws: 0, firstMeeting: '1930', lastMeeting: '2010', notable: '1966 WC Final (Wembley Goal), 1990 WC Semi, 2010 WC R16 (Ghost Goal)', rivalry: 'Bitter rivalry with controversial World Cup history' },
 };
 
 const goldenBootData = [
@@ -90,6 +92,22 @@ const goldenBootData = [
   { rank: 21, name: 'Kai Havertz', team: 'Germany', teamCode: 'GER', position: 'MF', goals: 3, assists: 0, minutes: 290, yellowCards: 0, redCards: 0 },
   { rank: 22, name: 'Yoane Wissa', team: 'DR Congo', teamCode: 'COD', position: 'FW', goals: 3, assists: 0, minutes: 306, yellowCards: 0, redCards: 0 },
 ];
+
+function getTeamStats(code) {
+  const team = squadData.find(t => t.code === code);
+  if (!team) return null;
+  const players = team.players;
+  const avgAge = (players.reduce((s, p) => s + p.age, 0) / players.length).toFixed(1);
+  const totalCaps = players.reduce((s, p) => s + p.caps, 0);
+  const totalGoals = players.reduce((s, p) => s + p.goals, 0);
+  const positions = { GK: 0, DF: 0, MF: 0, FW: 0 };
+  players.forEach(p => { if (positions[p.position] !== undefined) positions[p.position]++; });
+  const clubs = [...new Set(players.map(p => p.club))];
+  const topClub = players.reduce((acc, p) => { acc[p.club] = (acc[p.club] || 0) + 1; return acc; }, {});
+  const topClubName = Object.entries(topClub).sort((a, b) => b[1] - a[1])[0];
+  const avgCaps = (totalCaps / players.length).toFixed(0);
+  return { name: team.name, code: team.code, group: team.group, fifaRank: team.fifaRank, coach: team.coach, avgAge, totalCaps, totalGoals, positions, clubCount: clubs.length, topClub: topClubName ? topClubName[0] : '-', topClubCount: topClubName ? topClubName[1] : 0, avgCaps, playerCount: players.length };
+}
 
 export default function Stats() {
   const [activeTab, setActiveTab] = useState('scorers');
@@ -142,6 +160,9 @@ export default function Stats() {
     return data || null;
   }, [team1, team2]);
 
+  const teamStats1 = useMemo(() => team1 ? getTeamStats(team1) : null, [team1]);
+  const teamStats2 = useMemo(() => team2 ? getTeamStats(team2) : null, [team2]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       <div className="section-header animate-fade-in-up">
@@ -152,18 +173,10 @@ export default function Stats() {
       <p className="animate-fade-in-up delay-1" style={{ color: 'var(--text-secondary)', marginTop: '-1rem' }}>Golden Boot race, player profiles, and head-to-head team comparisons.</p>
 
       <div className="tab-container">
-        <button className={`tab-btn ${activeTab === 'scorers' ? 'active' : ''}`} onClick={() => setActiveTab('scorers')}>
-          Golden Boot
-        </button>
-        <button className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`} onClick={() => setActiveTab('players')}>
-          All Players
-        </button>
-        <button className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`} onClick={() => setActiveTab('compare')}>
-          <Swords size={16} /> Head-to-Head
-        </button>
-        <button className={`tab-btn ${activeTab === 'champions' ? 'active' : ''}`} onClick={() => setActiveTab('champions')}>
-          <Crown size={16} /> Top by Team
-        </button>
+        <button className={`tab-btn ${activeTab === 'scorers' ? 'active' : ''}`} onClick={() => setActiveTab('scorers')}>Golden Boot</button>
+        <button className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`} onClick={() => setActiveTab('players')}>All Players</button>
+        <button className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`} onClick={() => setActiveTab('compare')}><Swords size={16} /> Head-to-Head</button>
+        <button className={`tab-btn ${activeTab === 'champions' ? 'active' : ''}`} onClick={() => setActiveTab('champions')}><Crown size={16} /> Top by Team</button>
       </div>
 
       {activeTab === 'scorers' && (
@@ -188,13 +201,11 @@ export default function Stats() {
               <tbody>
                 {goldenBootData.map((player) => (
                   <tr key={player.rank}>
-                    <td style={{ fontWeight: 700, color: player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-secondary)' }}>
-                      {player.rank}
-                    </td>
+                    <td style={{ fontWeight: 700, color: player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-secondary)' }}>{player.rank}</td>
                     <td><span style={{ fontWeight: 600 }}>{player.name}</span></td>
                     <td>
                       <div className="team-cell">
-                        <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(player.teamCode)}</span>
+                        <Flag code={player.teamCode} />
                         <span>{player.team}</span>
                       </div>
                     </td>
@@ -229,7 +240,7 @@ export default function Stats() {
               <select value={filterTeam} onChange={(e) => setFilterTeam(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '150px' }}>
                 <option value="ALL">All Teams</option>
                 {teamsList.map(t => (
-                  <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
+                  <option key={t.code} value={t.code}><Flag code={t.code} size="1rem" /> {t.name}</option>
                 ))}
               </select>
               <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
@@ -264,7 +275,7 @@ export default function Stats() {
                         <td><span style={{ fontWeight: 600 }}>{p.name}</span></td>
                         <td>
                           <div className="team-cell">
-                            <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(p.teamCode)}</span>
+                            <Flag code={p.teamCode} />
                             <span>{p.teamName}</span>
                           </div>
                         </td>
@@ -290,7 +301,7 @@ export default function Stats() {
               <Swords size={20} /> Head-to-Head Comparison
             </h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-              All-time head-to-head records sourced from Wikipedia and FIFA archives.
+              Historical records from Wikipedia & FIFA for famous rivalries. For other matchups, see squad comparisons below.
             </p>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '200px' }}>
@@ -298,7 +309,7 @@ export default function Stats() {
                 <select value={team1} onChange={(e) => setTeam1(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
                   {teamsList.map(t => (
-                    <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
+                    <option key={t.code} value={t.code}><Flag code={t.code} size="1rem" /> {t.name}</option>
                   ))}
                 </select>
               </div>
@@ -308,34 +319,41 @@ export default function Stats() {
                 <select value={team2} onChange={(e) => setTeam2(e.target.value)} className="form-control">
                   <option value="">Select team...</option>
                   {teamsList.map(t => (
-                    <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
+                    <option key={t.code} value={t.code}><Flag code={t.code} size="1rem" /> {t.name}</option>
                   ))}
                 </select>
               </div>
             </div>
           </div>
 
+          {team1 && team2 && team1 === team2 && (
+            <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+              <Info size={32} color="var(--text-muted)" style={{ marginBottom: '0.5rem' }} />
+              <p style={{ color: 'var(--text-secondary)' }}>Please select two different teams to compare.</p>
+            </div>
+          )}
+
           {team1 && team2 && team1 !== team2 && h2h && (
             <div className="card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team1)}</span>
-                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team1)?.name}</p>
+                  <Flag code={team1} size="3rem" />
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{teamStats1?.name}</p>
                 </div>
                 <div style={{ textAlign: 'center', padding: '1rem 2rem', background: 'rgba(212,175,55,0.1)', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.3)' }}>
                   <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-gold)' }}>{h2h.played}</p>
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Matches Played</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team2)}</span>
-                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team2)?.name}</p>
+                  <Flag code={team2} size="3rem" />
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{teamStats2?.name}</p>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
                 <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(34,197,94,0.1)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.3)' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#22c55e' }}>{h2h.wins1}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{squadData.find(t => t.code === team1)?.name} Wins</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{teamStats1?.name} Wins</p>
                 </div>
                 <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(148,163,184,0.1)', borderRadius: '8px', border: '1px solid rgba(148,163,184,0.3)' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#94a3b8' }}>{h2h.draws}</p>
@@ -343,7 +361,7 @@ export default function Stats() {
                 </div>
                 <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(59,130,246,0.1)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.3)' }}>
                   <p style={{ fontSize: '1.8rem', fontWeight: 800, color: '#3b82f6' }}>{h2h.wins2}</p>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{squadData.find(t => t.code === team2)?.name} Wins</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{teamStats2?.name} Wins</p>
                 </div>
               </div>
 
@@ -381,57 +399,122 @@ export default function Stats() {
             </div>
           )}
 
-          {team1 && team2 && team1 !== team2 && !h2h && (
+          {team1 && team2 && team1 !== team2 && !h2h && teamStats1 && teamStats2 && (
             <div className="card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team1)}</span>
-                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team1)?.name}</p>
+                  <Flag code={team1} size="3rem" />
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{teamStats1.name}</p>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Group {teamStats1.group} • FIFA #{teamStats1.fifaRank}</p>
                 </div>
-                <div style={{ textAlign: 'center', padding: '1rem 2rem', background: 'rgba(148,163,184,0.1)', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.3)' }}>
-                  <p style={{ fontSize: '2rem', fontWeight: 800, color: '#94a3b8' }}>vs</p>
+                <div style={{ textAlign: 'center', padding: '0.75rem 1.5rem', background: 'rgba(148,163,184,0.1)', borderRadius: '12px', border: '1px solid rgba(148,163,184,0.3)' }}>
+                  <Swords size={28} color="var(--text-muted)" />
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: '3rem' }}>{getFlagEmoji(team2)}</span>
-                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{squadData.find(t => t.code === team2)?.name}</p>
+                  <Flag code={team2} size="3rem" />
+                  <p style={{ fontWeight: 700, fontSize: '1.1rem', marginTop: '0.25rem' }}>{teamStats2.name}</p>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Group {teamStats2.group} • FIFA #{teamStats2.fifaRank}</p>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                {[team1, team2].map(code => {
-                  const team = squadData.find(t => t.code === code);
-                  const teamPlayers = allPlayers.filter(p => p.teamCode === code);
-                  const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
-                  const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
-                  return (
-                    <div key={code} className="card" style={{ background: 'rgba(20,26,51,0.5)', borderColor: 'var(--color-gold)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <span style={{ fontSize: '2.5rem' }}>{getFlagEmoji(code)}</span>
-                        <div>
-                          <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group} &bull; FIFA #{team?.fifaRank}</p>
-                        </div>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '0.5rem', alignItems: 'start' }}>
+                <div style={{ padding: '1rem', background: 'rgba(34,197,94,0.05)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22c55e', textAlign: 'center' }}>{teamStats1.playerCount}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Players</p>
+                </div>
+                <div style={{ padding: '1rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Squad Size</p>
+                </div>
+                <div style={{ padding: '1rem', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <p style={{ fontSize: '1.5rem', fontWeight: 800, color: '#3b82f6', textAlign: 'center' }}>{teamStats2.playerCount}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Players</p>
+                </div>
+
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.05)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>{teamStats1.avgAge}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Avg Age</p>
+                </div>
+                <div style={{ padding: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Avg Age</p>
+                </div>
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3b82f6', textAlign: 'center' }}>{teamStats2.avgAge}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Avg Age</p>
+                </div>
+
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.05)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>{teamStats1.avgCaps}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Avg Caps</p>
+                </div>
+                <div style={{ padding: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Avg Caps</p>
+                </div>
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3b82f6', textAlign: 'center' }}>{teamStats2.avgCaps}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Avg Caps</p>
+                </div>
+
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.05)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>{teamStats1.totalGoals}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Intl Goals</p>
+                </div>
+                <div style={{ padding: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Intl Goals</p>
+                </div>
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3b82f6', textAlign: 'center' }}>{teamStats2.totalGoals}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Intl Goals</p>
+                </div>
+
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(34,197,94,0.05)', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>{teamStats1.clubCount}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Unique Clubs</p>
+                </div>
+                <div style={{ padding: '0.75rem', textAlign: 'center' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Clubs</p>
+                </div>
+                <div style={{ padding: '0.75rem 1rem', background: 'rgba(59,130,246,0.05)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: '#3b82f6', textAlign: 'center' }}>{teamStats2.clubCount}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Unique Clubs</p>
+                </div>
               </div>
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '1rem' }}>
-                No historical head-to-head data available for this matchup. Select notable rivalries like England vs Argentina, Brazil vs France, or Germany vs Spain.
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Position Breakdown</p>
+                  {['GK', 'DF', 'MF', 'FW'].map(pos => (
+                    <div key={pos} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{pos}</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{teamStats1.positions[pos]}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>Position Breakdown</p>
+                  {['GK', 'DF', 'MF', 'FW'].map(pos => (
+                    <div key={pos} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{pos}</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{teamStats2.positions[pos]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Most Players From</p>
+                  <p style={{ fontSize: '1rem', fontWeight: 600 }}>{teamStats1.topClub} ({teamStats1.topClubCount})</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Coach: {teamStats1.coach}</p>
+                </div>
+                <div style={{ padding: '1rem', background: 'rgba(20,26,51,0.5)', borderRadius: '8px' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Most Players From</p>
+                  <p style={{ fontSize: '1rem', fontWeight: 600 }}>{teamStats2.topClub} ({teamStats2.topClubCount})</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Coach: {teamStats2.coach}</p>
+                </div>
+              </div>
+
+              <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1rem', fontStyle: 'italic' }}>
+                No historical head-to-head data available. Showing current squad comparison instead.
               </p>
             </div>
           )}
@@ -439,13 +522,14 @@ export default function Stats() {
           {(!team1 || !team2 || team1 === team2) && (
             <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
               <Swords size={48} color="var(--text-muted)" style={{ marginBottom: '1rem' }} />
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Select two different teams above to see their head-to-head record</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: '0.5rem' }}>Select two different teams to compare</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Famous rivalries include historical head-to-head data. Other matchups show squad comparisons.</p>
               <div style={{ marginTop: '1.5rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
-                {Object.keys(headToHeadData).slice(0, 8).map(key => {
+                {Object.keys(headToHeadData).slice(0, 10).map(key => {
                   const [c1, c2] = key.split('-');
                   return (
                     <button key={key} className="btn btn-sm" style={{ fontSize: '0.75rem' }} onClick={() => { setTeam1(c1); setTeam2(c2); }}>
-                      {getFlagEmoji(c1)} vs {getFlagEmoji(c2)}
+                      <Flag code={c1} size="0.9rem" /> vs <Flag code={c2} size="0.9rem" />
                     </button>
                   );
                 })}
@@ -480,7 +564,7 @@ export default function Stats() {
                     <tr key={team.code}>
                       <td>
                         <div className="team-cell">
-                          <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(team.code)}</span>
+                          <Flag code={team.code} />
                           <span style={{ fontWeight: 600 }}>{team.name}</span>
                         </div>
                       </td>
