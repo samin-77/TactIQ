@@ -1,84 +1,71 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useState, useMemo } from 'react';
 import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3 } from 'lucide-react';
-import FootballLoader from '../components/FootballLoader';
+import { teams as squadData } from '../data/squadData';
+
+const goldenBootData = [
+  { rank: 1, name: 'Kylian Mbappé', team: 'France', teamCode: 'FRA', position: 'FW', goals: 8, assists: 3, minutes: 558, yellowCards: 0, redCards: 0 },
+  { rank: 2, name: 'Lionel Messi', team: 'Argentina', teamCode: 'ARG', position: 'FW', goals: 8, assists: 1, minutes: 433, yellowCards: 0, redCards: 0 },
+  { rank: 3, name: 'Erling Haaland', team: 'Norway', teamCode: 'NOR', position: 'FW', goals: 7, assists: 0, minutes: 399, yellowCards: 1, redCards: 0 },
+  { rank: 4, name: 'Harry Kane', team: 'England', teamCode: 'ENG', position: 'FW', goals: 6, assists: 1, minutes: 471, yellowCards: 0, redCards: 0 },
+  { rank: 5, name: 'Jude Bellingham', team: 'England', teamCode: 'ENG', position: 'MF', goals: 6, assists: 2, minutes: 510, yellowCards: 1, redCards: 0 },
+  { rank: 6, name: 'Ousmane Dembélé', team: 'France', teamCode: 'FRA', position: 'FW', goals: 5, assists: 2, minutes: 484, yellowCards: 0, redCards: 0 },
+  { rank: 7, name: 'Vinícius Júnior', team: 'Brazil', teamCode: 'BRA', position: 'FW', goals: 4, assists: 1, minutes: 398, yellowCards: 1, redCards: 0 },
+  { rank: 8, name: 'Mikel Oyarzabal', team: 'Spain', teamCode: 'ESP', position: 'FW', goals: 4, assists: 1, minutes: 420, yellowCards: 0, redCards: 0 },
+  { rank: 9, name: 'Ismaïla Sarr', team: 'Senegal', teamCode: 'SEN', position: 'FW', goals: 4, assists: 1, minutes: 274, yellowCards: 0, redCards: 0 },
+  { rank: 10, name: 'Julián Quiñones', team: 'Mexico', teamCode: 'MEX', position: 'FW', goals: 4, assists: 1, minutes: 409, yellowCards: 0, redCards: 0 },
+  { rank: 11, name: 'Deniz Undav', team: 'Germany', teamCode: 'GER', position: 'FW', goals: 3, assists: 2, minutes: 174, yellowCards: 0, redCards: 0 },
+  { rank: 12, name: 'Johan Manzambi', team: 'Switzerland', teamCode: 'SUI', position: 'MF', goals: 3, assists: 2, minutes: 146, yellowCards: 0, redCards: 0 },
+  { rank: 13, name: 'Cody Gakpo', team: 'Netherlands', teamCode: 'NED', position: 'FW', goals: 3, assists: 1, minutes: 394, yellowCards: 0, redCards: 0 },
+  { rank: 14, name: 'Brian Brobbey', team: 'Netherlands', teamCode: 'NED', position: 'FW', goals: 3, assists: 0, minutes: 245, yellowCards: 1, redCards: 0 },
+  { rank: 15, name: 'Matheus Cunha', team: 'Brazil', teamCode: 'BRA', position: 'FW', goals: 3, assists: 0, minutes: 260, yellowCards: 0, redCards: 0 },
+  { rank: 16, name: 'Folarin Balogun', team: 'USA', teamCode: 'USA', position: 'FW', goals: 3, assists: 0, minutes: 280, yellowCards: 0, redCards: 0 },
+  { rank: 17, name: 'Elijah Just', team: 'New Zealand', teamCode: 'NZL', position: 'MF', goals: 3, assists: 0, minutes: 350, yellowCards: 0, redCards: 0 },
+  { rank: 18, name: 'Jonathan David', team: 'Canada', teamCode: 'CAN', position: 'FW', goals: 3, assists: 0, minutes: 370, yellowCards: 0, redCards: 0 },
+  { rank: 19, name: 'Cristiano Ronaldo', team: 'Portugal', teamCode: 'POR', position: 'FW', goals: 3, assists: 0, minutes: 320, yellowCards: 0, redCards: 0 },
+  { rank: 20, name: 'Ismael Saibari', team: 'Morocco', teamCode: 'MAR', position: 'MF', goals: 3, assists: 0, minutes: 340, yellowCards: 1, redCards: 0 },
+  { rank: 21, name: 'Kai Havertz', team: 'Germany', teamCode: 'GER', position: 'MF', goals: 3, assists: 0, minutes: 290, yellowCards: 0, redCards: 0 },
+  { rank: 22, name: 'Yoane Wissa', team: 'DR Congo', teamCode: 'COD', position: 'FW', goals: 3, assists: 0, minutes: 306, yellowCards: 0, redCards: 0 },
+];
 
 export default function Stats() {
-  const { apiUrl } = useAuth();
-  
-  const [activeTab, setActiveTab] = useState('scorers'); // 'scorers', 'players', 'compare', 'champions'
-  const [champions, setChampions] = useState([]);
-  const [scorers, setScorers] = useState([]);
-  const [players, setPlayers] = useState([]);
-  const [teams, setTeams] = useState([]);
-  const [team1, setTeam1] = useState('');
-  const [team2, setTeam2] = useState('');
-  const [comparison, setComparison] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Player filters
+  const [activeTab, setActiveTab] = useState('scorers');
   const [filterPosition, setFilterPosition] = useState('ALL');
   const [filterTeam, setFilterTeam] = useState('ALL');
   const [searchName, setSearchName] = useState('');
 
-  // Load initial data
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        
-        // Load teams for filters
-        const tRes = await fetch(`${apiUrl}/stats/teams`);
-        const tData = await tRes.json();
-        setTeams(tData.teams || []);
+  const teams = useMemo(() => {
+    const map = new Map();
+    squadData.forEach(t => map.set(t.code, t.name));
+    return Array.from(map.entries()).map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
 
-        // Load top scorers
-        const sRes = await fetch(`${apiUrl}/stats/scorers`);
-        const sData = await sRes.json();
-        setScorers(sData.scorers || []);
+  const allPlayers = useMemo(() => {
+    const players = [];
+    squadData.forEach(team => {
+      team.players.forEach(p => {
+        const goalScorer = goldenBootData.find(g => g.name === p.name);
+        players.push({
+          ...p,
+          teamCode: team.code,
+          teamName: team.name,
+          goals: goalScorer?.goals || 0,
+          assists: goalScorer?.assists || 0,
+          yellowCards: goalScorer?.yellowCards || 0,
+          redCards: goalScorer?.redCards || 0,
+        });
+      });
+    });
+    return players.sort((a, b) => b.goals - a.goals || b.assists - a.assists);
+  }, []);
 
-        // Load all players
-        const pRes = await fetch(`${apiUrl}/stats/players`);
-        const pData = await pRes.json();
-        setPlayers(pData.players || []);
-
-        // Load bracket champions
-        const cRes = await fetch(`${apiUrl}/bracket/champion-leaderboard`);
-        const cData = await cRes.json();
-        setChampions(cData.leaderboard || []);
-      } catch (err) {
-        console.error('Error loading stats:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, [apiUrl]);
-
-  // Filter players
-  const filteredPlayers = players.filter(p => {
-    const matchesPosition = filterPosition === 'ALL' || p.position === filterPosition;
-    const matchesTeam = filterTeam === 'ALL' || p.team_id === parseInt(filterTeam);
-    const matchesSearch = searchName === '' || p.name.toLowerCase().includes(searchName.toLowerCase());
-    return matchesPosition && matchesTeam && matchesSearch;
-  });
-
-  // Handle team comparison
-  async function handleCompare() {
-    if (!team1 || !team2 || team1 === team2) return;
-    
-    try {
-      const res = await fetch(`${apiUrl}/stats/compare?team1=${team1}&team2=${team2}`);
-      const data = await res.json();
-      setComparison(data);
-    } catch (err) {
-      console.error('Error comparing teams:', err);
-    }
-  }
-
-  if (loading) {
-    return <FootballLoader text="Loading Statistics..." />;
-  }
+  const filteredPlayers = useMemo(() => {
+    return allPlayers.filter(p => {
+      const matchesPosition = filterPosition === 'ALL' || p.position === filterPosition;
+      const matchesTeam = filterTeam === 'ALL' || p.teamCode === filterTeam;
+      const matchesSearch = searchName === '' || p.name.toLowerCase().includes(searchName.toLowerCase());
+      return matchesPosition && matchesTeam && matchesSearch;
+    });
+  }, [allPlayers, filterPosition, filterTeam, searchName]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -132,42 +119,39 @@ export default function Stats() {
                   <th>Position</th>
                   <th>Goals</th>
                   <th>Assists</th>
-                  <th>Matches</th>
-                  <th>Y/R Cards</th>
+                  <th>Minutes</th>
+                  <th>Cards</th>
                 </tr>
               </thead>
               <tbody>
-                {scorers.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      No goals scored yet in the tournament.
+                {goldenBootData.map((player) => (
+                  <tr key={player.rank}>
+                    <td style={{ fontWeight: 700, color: player.rank === 1 ? 'var(--color-gold)' : player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-primary)' }}>
+                      {player.rank}
                     </td>
+                    <td>
+                      <div className="team-cell">
+                        <span style={{ fontWeight: 600 }}>{player.name}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="team-cell">
+                        <img 
+                          className="flag-img" 
+                          src={`https://flagcdn.com/w40/${player.teamCode.toLowerCase()}.png`} 
+                          alt={player.teamCode} 
+                          onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
+                        />
+                        <span>{player.team}</span>
+                      </div>
+                    </td>
+                    <td>{player.position}</td>
+                    <td style={{ fontWeight: 700, color: 'var(--color-gold)', fontSize: '1.1rem' }}>{player.goals}</td>
+                    <td>{player.assists}</td>
+                    <td>{player.minutes}'</td>
+                    <td>{player.yellowCards}🟨 {player.redCards}🟥</td>
                   </tr>
-                ) : (
-                  scorers.map((player, idx) => (
-                    <tr key={player.id}>
-                      <td style={{ fontWeight: 700, color: idx === 0 ? 'var(--color-gold)' : 'var(--text-primary)' }}>
-                        {idx + 1}
-                      </td>
-                      <td>
-                        <div className="team-cell">
-                          <span style={{ fontWeight: 600 }}>{player.name}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="team-cell">
-                          <img className="flag-img" src={player.flag_url} alt={player.team_code} />
-                          <span>{player.team_code}</span>
-                        </div>
-                      </td>
-                      <td>{player.position}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--color-gold)', fontSize: '1.1rem' }}>{player.total_goals}</td>
-                      <td>{player.total_assists}</td>
-                      <td>{player.matches_played}</td>
-                      <td>{player.yellow_cards}/{player.red_cards}</td>
-                    </tr>
-                  ))
-                )}
+                ))}
               </tbody>
             </table>
           </div>
@@ -199,7 +183,7 @@ export default function Stats() {
               >
                 <option value="ALL">All Teams</option>
                 {teams.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
+                  <option key={t.code} value={t.code}>{t.name}</option>
                 ))}
               </select>
               <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
@@ -218,30 +202,32 @@ export default function Stats() {
 
           {/* Player List */}
           <div className="card">
-            <div className="table-container">
+            <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+              Showing {filteredPlayers.length} of {allPlayers.length} players
+            </div>
+            <div className="table-container" style={{ maxHeight: '600px', overflowY: 'auto' }}>
               <table className="custom-table">
                 <thead>
                   <tr>
                     <th>Player</th>
                     <th>Team</th>
                     <th>Position</th>
-                    <th>Cost</th>
+                    <th>Club</th>
+                    <th>Age</th>
                     <th>Goals</th>
                     <th>Assists</th>
-                    <th>Matches</th>
-                    <th>Cards</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredPlayers.length === 0 ? (
                     <tr>
-                      <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                         No players match your filters.
                       </td>
                     </tr>
                   ) : (
-                    filteredPlayers.map(p => (
-                      <tr key={p.id}>
+                    filteredPlayers.map((p, idx) => (
+                      <tr key={`${p.teamCode}-${p.name}-${idx}`}>
                         <td>
                           <div className="team-cell">
                             <span style={{ fontWeight: 600 }}>{p.name}</span>
@@ -249,16 +235,22 @@ export default function Stats() {
                         </td>
                         <td>
                           <div className="team-cell">
-                            <img className="flag-img" src={p.flag_url} alt={p.team_code} />
-                            <span>{p.team_code}</span>
+                            <img 
+                              className="flag-img" 
+                              src={`https://flagcdn.com/w40/${p.teamCode.toLowerCase()}.png`} 
+                              alt={p.teamCode}
+                              onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
+                            />
+                            <span>{p.teamCode}</span>
                           </div>
                         </td>
                         <td>{p.position}</td>
-                        <td style={{ fontWeight: 600, color: 'var(--color-gold)' }}>{p.cost}m</td>
-                        <td>{p.total_goals}</td>
-                        <td>{p.total_assists}</td>
-                        <td>{p.matches_played}</td>
-                        <td>{p.yellow_cards}/{p.red_cards}</td>
+                        <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{p.club}</td>
+                        <td>{p.age}</td>
+                        <td style={{ fontWeight: p.goals > 0 ? 700 : 400, color: p.goals > 0 ? 'var(--color-gold)' : 'var(--text-primary)' }}>
+                          {p.goals}
+                        </td>
+                        <td>{p.assists}</td>
                       </tr>
                     ))
                   )}
@@ -270,212 +262,86 @@ export default function Stats() {
       )}
 
       {activeTab === 'compare' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Team Selection */}
-          <div className="card">
-            <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Target size={20} /> Select Teams to Compare
-            </h3>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ flex: 1, minWidth: '200px' }}>
-                <label className="form-label">Team 1</label>
-                <select 
-                  value={team1} 
-                  onChange={(e) => setTeam1(e.target.value)}
-                  className="form-control"
-                >
-                  <option value="">Select team...</option>
-                  {teams.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
-              <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
-              <div style={{ flex: 1, minWidth: '200px' }}>
-                <label className="form-label">Team 2</label>
-                <select 
-                  value={team2} 
-                  onChange={(e) => setTeam2(e.target.value)}
-                  className="form-control"
-                >
-                  <option value="">Select team...</option>
-                  {teams.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
-              <button 
-                onClick={handleCompare}
-                disabled={!team1 || !team2 || team1 === team2}
-                className="btn btn-primary"
-                style={{ marginTop: '1.5rem' }}
+        <div className="card">
+          <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Target size={20} /> Team Comparison
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+            Compare squads between any two qualified nations. Select teams below to see head-to-head player statistics.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label className="form-label">Team 1</label>
+              <select 
+                value={team1} 
+                onChange={(e) => setTeam1(e.target.value)}
+                className="form-control"
               >
-                Compare
-              </button>
+                <option value="">Select team...</option>
+                {teams.map(t => (
+                  <option key={t.code} value={t.code}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <label className="form-label">Team 2</label>
+              <select 
+                value={team2} 
+                onChange={(e) => setTeam2(e.target.value)}
+                className="form-control"
+              >
+                <option value="">Select team...</option>
+                {teams.map(t => (
+                  <option key={t.code} value={t.code}>{t.name}</option>
+                ))}
+              </select>
             </div>
           </div>
-
-          {/* Comparison Results */}
-          {comparison && (
-            <div className="grid-2">
-              {/* Team 1 Stats */}
-              <div className="card" style={{
-                background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
-                borderColor: 'var(--color-gold)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <img className="flag-img" src={comparison.team1.flag_url} alt={comparison.team1.code} style={{ width: '60px', height: '40px' }} />
-                  <div>
-                    <h3 style={{ color: 'var(--color-gold)', fontSize: '1.5rem' }}>{comparison.team1.name}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{comparison.team1.code}</p>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div className="grid-2">
-                    <div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Historical Titles</p>
-                      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{comparison.team1.historical_titles}</p>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Historical Appearances</p>
-                      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{comparison.team1.historical_appearances}</p>
-                    </div>
-                  </div>
-                  
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gold)', fontWeight: 600, marginBottom: '0.5rem' }}>Current Tournament</p>
-                    <div className="grid-2">
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Matches Played</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.current_played}</p>
+          
+          {team1 && team2 && team1 !== team2 && (
+            <div style={{ marginTop: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                {[team1, team2].map(code => {
+                  const team = squadData.find(t => t.code === code);
+                  const teamPlayers = allPlayers.filter(p => p.teamCode === code);
+                  const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
+                  const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
+                  return (
+                    <div key={code} className="card" style={{
+                      background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
+                      borderColor: 'var(--color-gold)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <img 
+                          className="flag-img" 
+                          src={`https://flagcdn.com/w60/${code.toLowerCase()}.png`} 
+                          alt={code}
+                          style={{ width: '60px', height: '40px' }}
+                          onError={(e) => { e.target.src = `https://flagcdn.com/w60/gb.png`; }}
+                        />
+                        <div>
+                          <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Wins</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-green)' }}>{comparison.team1.current_wins}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Goals Scored</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.current_goals_scored}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Goals Conceded</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.current_goals_conceded}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Win Rate</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.win_rate}%</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Avg Goals/Match</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.goals_avg}</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Discipline</p>
-                    <div className="grid-2">
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Yellow Cards</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team1.current_yellow_cards}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Red Cards</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-red)' }}>{comparison.team1.current_red_cards}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-gold)', fontWeight: 600, marginBottom: '0.5rem' }}>Top Player</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Users size={16} color="var(--color-gold)" />
-                      <span style={{ fontWeight: 600 }}>{comparison.team1.top_player.name}</span>
-                      <span style={{ color: 'var(--text-muted)' }}>({comparison.team1.top_player.goals} goals)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Team 2 Stats */}
-              <div className="card" style={{
-                background: 'linear-gradient(135deg, rgba(0, 200, 117, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
-                borderColor: 'var(--color-green)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <img className="flag-img" src={comparison.team2.flag_url} alt={comparison.team2.code} style={{ width: '60px', height: '40px' }} />
-                  <div>
-                    <h3 style={{ color: 'var(--color-green)', fontSize: '1.5rem' }}>{comparison.team2.name}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{comparison.team2.code}</p>
-                  </div>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div className="grid-2">
-                    <div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Historical Titles</p>
-                      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{comparison.team2.historical_titles}</p>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Historical Appearances</p>
-                      <p style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{comparison.team2.historical_appearances}</p>
-                    </div>
-                  </div>
-                  
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-green)', fontWeight: 600, marginBottom: '0.5rem' }}>Current Tournament</p>
-                    <div className="grid-2">
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Matches Played</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.current_played}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Wins</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-green)' }}>{comparison.team2.current_wins}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Goals Scored</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.current_goals_scored}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Goals Conceded</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.current_goals_conceded}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Win Rate</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.win_rate}%</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Avg Goals/Match</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.goals_avg}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Discipline</p>
-                    <div className="grid-2">
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Yellow Cards</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{comparison.team2.current_yellow_cards}</p>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Red Cards</p>
-                        <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--color-red)' }}>{comparison.team2.current_red_cards}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-glass)', paddingTop: '1rem', marginTop: '0.5rem' }}>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--color-green)', fontWeight: 600, marginBottom: '0.5rem' }}>Top Player</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Users size={16} color="var(--color-green)" />
-                      <span style={{ fontWeight: 600 }}>{comparison.team2.top_player.name}</span>
-                      <span style={{ color: 'var(--text-muted)' }}>({comparison.team2.top_player.goals} goals)</span>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -484,43 +350,51 @@ export default function Stats() {
 
       {activeTab === 'champions' && (
         <div className="card">
-          <h3 style={{ color: 'var(--color-gold)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Crown size={24} /> Bracket Champions Leaderboard
+          <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Crown size={24} /> Tournament Top Scorers by Team
           </h3>
-
-          {champions.length === 0 ? (
-            <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-              No champions predicted yet. Go to Standings &gt; Knockout Bracket to make your predictions!
-            </p>
-          ) : (
-            <div className="table-container">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Champion Team</th>
-                    <th>Predicted At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {champions.map((champ, i) => (
-                    <tr key={i}>
-                      <td style={{ fontWeight: 600 }}>{champ.username}</td>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+            Top scorer from each qualified nation at the 2026 FIFA World Cup.
+          </p>
+          <div className="table-container">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Team</th>
+                  <th>Top Scorer</th>
+                  <th>Goals</th>
+                  <th>Assists</th>
+                </tr>
+              </thead>
+              <tbody>
+                {squadData.sort((a, b) => b.name.localeCompare(a.name)).map(team => {
+                  const teamScorers = goldenBootData
+                    .filter(s => s.teamCode === team.code)
+                    .sort((a, b) => b.goals - a.goals);
+                  const topScorer = teamScorers[0];
+                  if (!topScorer) return null;
+                  return (
+                    <tr key={team.code}>
                       <td>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                          {champ.flag && <span>{champ.flag}</span>}
-                          {champ.team_name || 'TBD'}
-                        </span>
+                        <div className="team-cell">
+                          <img 
+                            className="flag-img" 
+                            src={`https://flagcdn.com/w40/${team.code.toLowerCase()}.png`} 
+                            alt={team.code}
+                            onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
+                          />
+                          <span style={{ fontWeight: 600 }}>{team.name}</span>
+                        </div>
                       </td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                        {champ.predicted_at ? new Date(champ.predicted_at).toLocaleString() : '-'}
-                      </td>
+                      <td>{topScorer.name}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{topScorer.goals}</td>
+                      <td>{topScorer.assists}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
