@@ -92,6 +92,7 @@ export default function Home() {
   const funFeatures = [
     { icon: Brain, title: 'Trivia & Predictor Quiz', desc: 'Test your World Cup knowledge across 8 trivia categories. Then predict exact scores for upcoming matches and earn bonus points for accuracy.', link: 'Play Quiz', to: '/quiz' },
     { icon: MapPin, title: 'Host Stadiums & Venues', desc: 'Explore all 16 stadiums across the US, Mexico, and Canada. View capacity, weather, match schedules, and discover the stories behind each venue.', link: 'Explore Venues', to: '/venues' },
+    { icon: ShieldAlert, title: 'Admin Command Center', desc: 'Central dashboard for admins to update match scores, log goals/assists, issue cards, and manage tournament data. Auto-syncs to fantasy, brackets, and predictions.', link: 'Open Dashboard', to: '/admin' },
   ];
 
   const allFeatures = [...interactiveFeatures, ...knowledgeFeatures, ...funFeatures];
