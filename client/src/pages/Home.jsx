@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Calendar, Users, Award, TrendingUp, ShieldAlert, ArrowRight, Target, Zap, Globe } from 'lucide-react';
+import { Trophy, Calendar, Users, Award, TrendingUp, ShieldAlert, ArrowRight, Target, Zap, Globe, BookOpen, Brain, MapPin, Shirt, BarChart3 } from 'lucide-react';
 import '../App.css';
 
 const AnimatedCounter = ({ value, label, icon: Icon, delay }) => {
@@ -31,19 +31,30 @@ const AnimatedCounter = ({ value, label, icon: Icon, delay }) => {
   );
 };
 
-const FeatureCard = ({ icon: Icon, title, desc, link, to, delay }) => (
-  <div className="feature-card animate-fade-in-up" style={{ animationDelay: `${delay * 0.12}s` }}>
-    <div className="feature-icon"><Icon size={22} /></div>
-    <h3 className="feature-title">{title}</h3>
-    <p className="feature-desc">{desc}</p>
-    <Link to={to} className="feature-link">
-      {link} <ArrowRight size={14} />
-    </Link>
-  </div>
-);
+const FeatureCard = ({ icon: Icon, title, desc, link, to, delay, category, user, navigate }) => {
+  const handleClick = (e) => {
+    if (!user) {
+      e.preventDefault();
+      navigate('/login');
+    }
+  };
+  const dest = user ? to : '/login';
+  return (
+    <div className="feature-card animate-fade-in-up" style={{ animationDelay: `${delay * 0.1}s` }}>
+      {category && <div className="feature-category">{category}</div>}
+      <div className="feature-icon"><Icon size={22} /></div>
+      <h3 className="feature-title">{title}</h3>
+      <p className="feature-desc">{desc}</p>
+      <Link to={dest} className="feature-link" onClick={handleClick}>
+        {user ? link : 'Login to Explore'} <ArrowRight size={14} />
+      </Link>
+    </div>
+  );
+};
 
 export default function Home() {
   const { user, apiUrl } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ goals: 0, matches: 0, predictors: 0, fantasyTeams: 0 });
 
   useEffect(() => {
@@ -66,6 +77,25 @@ export default function Home() {
     fetchDashboardStats();
   }, [apiUrl]);
 
+  const interactiveFeatures = [
+    { icon: TrendingUp, title: 'Live Bracket & Standings', desc: 'Follow every stage from the Round of 32 to the Final. Interactive group tables, knockout bracket tree, and real-time match results across all 104 matches.', link: 'Explore Bracket', to: '/standings' },
+    { icon: Target, title: 'Match Score Predictor', desc: 'Predict exact scorelines before kickoff. Earn 10 points for correct winners, 5 for correct goal difference, and compete on the global leaderboard.', link: 'Make Predictions', to: '/standings' },
+    { icon: Users, title: 'Fantasy Football League', desc: 'Build your dream 11-player squad within a $100m budget. Earn points from goals, assists, clean sheets, and climb the manager rankings.', link: 'Build Squad', to: '/fantasy' },
+  ];
+
+  const knowledgeFeatures = [
+    { icon: BookOpen, title: 'World Cup History & Records', desc: 'Complete tournament archive from 1930 to 2026. Browse every winner, runner-up, Golden Boot, Golden Ball, and relive iconic moments from 22 tournaments.', link: 'Explore History', to: '/history' },
+    { icon: BarChart3, title: 'Player Stats & Leaderboards', desc: 'Golden boot race with top 22 scorers, head-to-head team comparisons with historical rivalry data, and a searchable database of all 1,248 players.', link: 'View Stats', to: '/stats' },
+    { icon: Shirt, title: 'Team Squads Showcase', desc: 'Complete 26-player squads for all 48 qualified nations. Filter by confederation, group, or position. View player details including age, caps, goals, and clubs.', link: 'View Squads', to: '/squads' },
+  ];
+
+  const funFeatures = [
+    { icon: Brain, title: 'Trivia & Predictor Quiz', desc: 'Test your World Cup knowledge across 8 trivia categories. Then predict exact scores for upcoming matches and earn bonus points for accuracy.', link: 'Play Quiz', to: '/quiz' },
+    { icon: MapPin, title: 'Host Stadiums & Venues', desc: 'Explore all 16 stadiums across the US, Mexico, and Canada. View capacity, weather, match schedules, and discover the stories behind each venue.', link: 'Explore Venues', to: '/venues' },
+  ];
+
+  const allFeatures = [...interactiveFeatures, ...knowledgeFeatures, ...funFeatures];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
       {/* ===== HERO ===== */}
@@ -84,7 +114,9 @@ export default function Home() {
 
         <p className="hero-subtitle animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           The ultimate Fan Engagement & Analytics Hub for the <strong style={{ color: 'var(--text-primary)' }}>FIFA World Cup 2026</strong>.
-          Predict scores, build your fantasy squad, and track every match live.
+          {!user
+            ? 'Predict scores, build your fantasy squad, explore 22 tournaments of history, and track every match live.'
+            : 'Pick a feature below and start exploring.'}
         </p>
 
         <div className="hero-ctas animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
@@ -125,32 +157,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== FEATURES ===== */}
+      {/* ===== INTERACTIVE FEATURES ===== */}
       <section>
         <div className="section-header animate-fade-in-up">
           <span className="section-icon"><Zap size={22} /></span>
-          <h2>Features & Analytics</h2>
+          <h2>Interactive Features</h2>
           <span className="section-line" />
         </div>
         <div className="features-grid">
-          <FeatureCard
-            icon={TrendingUp} delay={1}
-            title="Live Bracket & Standings"
-            desc="Follow every stage from the Round of 32 to the Final. Predict match winners and track your bracket through a beautiful interactive tree view."
-            link="Explore Bracket" to="/standings"
-          />
-          <FeatureCard
-            icon={Award} delay={2}
-            title="Match Score Predictor"
-            desc="Predict exact scorelines before kickoff. Compete on the global leaderboard, earn points for correct predictions, and win bragging rights."
-            link="Make Predictions" to="/standings"
-          />
-          <FeatureCard
-            icon={Users} delay={3}
-            title="Fantasy Football League"
-            desc="Build your dream 11-player squad within a 100m budget. Earn points from goals, assists, clean sheets, and climb the manager rankings."
-            link="Build Squad" to="/fantasy"
-          />
+          {interactiveFeatures.map((f, i) => (
+            <FeatureCard key={i} {...f} delay={i + 1} category="INTERACTIVE" user={user} navigate={navigate} />
+          ))}
+        </div>
+      </section>
+
+      {/* ===== KNOWLEDGE FEATURES ===== */}
+      <section>
+        <div className="section-header animate-fade-in-up">
+          <span className="section-icon"><BookOpen size={22} /></span>
+          <h2>Data & Knowledge</h2>
+          <span className="section-line" />
+        </div>
+        <div className="features-grid">
+          {knowledgeFeatures.map((f, i) => (
+            <FeatureCard key={i} {...f} delay={i + 1} category="DATA" user={user} navigate={navigate} />
+          ))}
+        </div>
+      </section>
+
+      {/* ===== FUN FEATURES ===== */}
+      <section>
+        <div className="section-header animate-fade-in-up">
+          <span className="section-icon"><Brain size={22} /></span>
+          <h2>Fun & Discovery</h2>
+          <span className="section-line" />
+        </div>
+        <div className="features-grid">
+          {funFeatures.map((f, i) => (
+            <FeatureCard key={i} {...f} delay={i + 1} category="FUN" user={user} navigate={navigate} />
+          ))}
         </div>
       </section>
 

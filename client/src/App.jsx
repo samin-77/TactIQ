@@ -42,31 +42,35 @@ function Navbar() {
         <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>
           <HomeIcon size={18} /> Home
         </Link>
-        <Link to="/standings" className={`nav-link ${isActive('/standings') ? 'active' : ''}`}>
-          <Calendar size={18} /> Standings
-        </Link>
-        <Link to="/fantasy" className={`nav-link ${isActive('/fantasy') ? 'active' : ''}`}>
-          <Users size={18} /> Fantasy
-        </Link>
-        <Link to="/stats" className={`nav-link ${isActive('/stats') ? 'active' : ''}`}>
-          <BarChart3 size={18} /> Stats
-        </Link>
-        <Link to="/history" className={`nav-link ${isActive('/history') ? 'active' : ''}`}>
-          <BookOpen size={18} /> History
-        </Link>
-        <Link to="/quiz" className={`nav-link ${isActive('/quiz') ? 'active' : ''}`}>
-          <Brain size={18} /> Quiz
-        </Link>
-        <Link to="/venues" className={`nav-link ${isActive('/venues') ? 'active' : ''}`}>
-          <MapPin size={18} /> Venues
-        </Link>
-        <Link to="/squads" className={`nav-link ${isActive('/squads') ? 'active' : ''}`}>
-          <Shirt size={18} /> Squads
-        </Link>
-        {user && user.role === 'ADMIN' && (
-          <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`}>
-            <ShieldAlert size={18} /> Admin
-          </Link>
+        {user && (
+          <>
+            <Link to="/standings" className={`nav-link ${isActive('/standings') ? 'active' : ''}`}>
+              <Calendar size={18} /> Standings
+            </Link>
+            <Link to="/fantasy" className={`nav-link ${isActive('/fantasy') ? 'active' : ''}`}>
+              <Users size={18} /> Fantasy
+            </Link>
+            <Link to="/stats" className={`nav-link ${isActive('/stats') ? 'active' : ''}`}>
+              <BarChart3 size={18} /> Stats
+            </Link>
+            <Link to="/history" className={`nav-link ${isActive('/history') ? 'active' : ''}`}>
+              <BookOpen size={18} /> History
+            </Link>
+            <Link to="/quiz" className={`nav-link ${isActive('/quiz') ? 'active' : ''}`}>
+              <Brain size={18} /> Quiz
+            </Link>
+            <Link to="/venues" className={`nav-link ${isActive('/venues') ? 'active' : ''}`}>
+              <MapPin size={18} /> Venues
+            </Link>
+            <Link to="/squads" className={`nav-link ${isActive('/squads') ? 'active' : ''}`}>
+              <Shirt size={18} /> Squads
+            </Link>
+            {user.role === 'ADMIN' && (
+              <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`}>
+                <ShieldAlert size={18} /> Admin
+              </Link>
+            )}
+          </>
         )}
         <button onClick={toggleTheme} className="theme-toggle" title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
