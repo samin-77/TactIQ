@@ -2,6 +2,50 @@ import { useState, useMemo } from 'react';
 import { Trophy, Target, Users, ArrowRight, Search, Crown, BarChart3 } from 'lucide-react';
 import { teams as squadData } from '../data/squadData';
 
+const fifaToEmoji = {
+  ARG: 'AR', AUS: 'AU', AUT: 'AT', BEL: 'BE', BOL: 'BO', BRA: 'BR',
+  BUL: 'BG', CAN: 'CA', CHI: 'CL', CHN: 'CN', COL: 'CO', CRC: 'CR',
+  CRO: 'HR', CZE: 'CZ', DEN: 'DK', ECU: 'EC', EGY: 'EG', ENG: 'GB',
+  ESP: 'ES', FRA: 'FR', GER: 'DE', GHA: 'GH', GRE: 'GR', HAI: 'HT',
+  HON: 'HN', HUN: 'HU', IDN: 'ID', IRN: 'IR', IRQ: 'IQ', IRL: 'IE',
+  ISL: 'IS', ISR: 'IL', ITA: 'IT', IVR: 'CI', JAM: 'JM', JPN: 'JP',
+  JOR: 'JO', KAZ: 'KZ', KOR: 'KR', KSA: 'SA', KUW: 'KW', LBR: 'LR',
+  LBY: 'LY', MEX: 'MX', MAR: 'MA', MLT: 'MT', NED: 'NL', NZL: 'NZ',
+  NGA: 'NG', NOR: 'NO', PAN: 'PA', PAR: 'PY', PER: 'PE', POL: 'PL',
+  POR: 'PT', QAT: 'QA', ROU: 'RO', RUS: 'RU', KSA: 'SA', SCO: 'GB',
+  SEN: 'SN', SER: 'RS', SGP: 'SG', SLO: 'SI', SVK: 'SK', SWE: 'SE',
+  SWI: 'CH', SUI: 'CH', TUN: 'TN', TUR: 'TR', UAE: 'AE', UKR: 'UA',
+  URU: 'UY', USA: 'US', UZB: 'UZ', VEN: 'VE', WAL: 'GB', ZAM: 'ZM',
+  ZIM: 'ZW', GAB: 'GA', GUI: 'GN', NAM: 'NA', MLI: 'ML', BFA: 'BF',
+  BAN: 'BD', PHI: 'PH', THA: 'TH', VIE: 'VN', CMR: 'CM', COD: 'CD',
+  ANG: 'AO', MOZ: 'MZ', MAD: 'MG', TAN: 'TZ', ETH: 'ET', KEN: 'KE',
+  RSA: 'ZA', ALG: 'DZ', IRQ: 'IQ', BRN: 'BN', MAC: 'MO', HKG: 'HK',
+  TPE: 'TW', MYA: 'MM', LAO: 'LA', CAM: 'KH', TLS: 'TL', NEP: 'NP',
+  PNG: 'PG', FIJ: 'FJ', SOL: 'SB', TAH: 'PF', SAM: 'WS', TGA: 'TO',
+  VAN: 'VU', COK: 'CK', ASA: 'AS', GUM: 'GU', NCL: 'NC', PLW: 'PW',
+  FSM: 'FM', MHL: 'MH', NRU: 'NR', KIR: 'KI', TUV: 'TV',
+  CPR: 'CU', NIR: 'GB', TRI: 'TT', BER: 'BM', CAY: 'KY',VIN: 'VC',
+  BAR: 'BB', ANT: 'AW', GRN: 'GD', LCA: 'LC', SKN: 'KN', DMA: 'DM',
+  MTQ: 'MQ', GUF: 'GF', SUR: 'SR', GUY: 'GY', BEL: 'BE',
+  LUX: 'LU', MLT: 'MT', CYP: 'CY', AND: 'AD', LIE: 'LI', SMR: 'SM',
+  VSM: 'VA', MON: 'MC', FAR: 'FK', AIA: 'AI', MSK: 'MS', TCA: 'TC',
+  VGB: 'VG', SXM: 'SX', BLM: 'BL', MAF: 'MF', PYF: 'PF',
+  NCL: 'NC', WLF: 'WF', ATF: 'TF', IOT: 'IO', HMD: 'HM', PCN: 'PN',
+  SGS: 'GS', SPR: 'GS', FLK: 'FK', GIB: 'GI', SHN: 'SH', SPD: 'SH',
+  WES: 'PS', SSD: 'SS', KOS: 'XK', SSD: 'SS', SOM: 'SO', DJI: 'DJ',
+  COM: 'KM', MYT: 'YT', REU: 'RE', SPM: 'PM', NCL: 'NC', WLF: 'WF',
+};
+
+const getFlagEmoji = (fifaCode) => {
+  const iso = fifaToEmoji[fifaCode];
+  if (!iso || iso.length !== 2) return '🏳️';
+  const codePoints = iso
+    .toUpperCase()
+    .split('')
+    .map(char => 0x1F1E6 - 65 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
 const goldenBootData = [
   { rank: 1, name: 'Kylian Mbappé', team: 'France', teamCode: 'FRA', position: 'FW', goals: 8, assists: 3, minutes: 558, yellowCards: 0, redCards: 0 },
   { rank: 2, name: 'Lionel Messi', team: 'Argentina', teamCode: 'ARG', position: 'FW', goals: 8, assists: 1, minutes: 433, yellowCards: 0, redCards: 0 },
@@ -32,11 +76,11 @@ export default function Stats() {
   const [filterPosition, setFilterPosition] = useState('ALL');
   const [filterTeam, setFilterTeam] = useState('ALL');
   const [searchName, setSearchName] = useState('');
+  const [team1, setTeam1] = useState('');
+  const [team2, setTeam2] = useState('');
 
   const teams = useMemo(() => {
-    const map = new Map();
-    squadData.forEach(t => map.set(t.code, t.name));
-    return Array.from(map.entries()).map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name));
+    return [...squadData].map(t => ({ code: t.code, name: t.name })).sort((a, b) => a.name.localeCompare(b.name));
   }, []);
 
   const allPlayers = useMemo(() => {
@@ -113,43 +157,44 @@ export default function Stats() {
             <table className="custom-table">
               <thead>
                 <tr>
-                  <th>Rank</th>
+                  <th style={{ width: '50px' }}>#</th>
                   <th>Player</th>
                   <th>Team</th>
-                  <th>Position</th>
-                  <th>Goals</th>
-                  <th>Assists</th>
-                  <th>Minutes</th>
-                  <th>Cards</th>
+                  <th>Pos</th>
+                  <th style={{ textAlign: 'center' }}>Goals</th>
+                  <th style={{ textAlign: 'center' }}>Assists</th>
+                  <th style={{ textAlign: 'center' }}>Min</th>
+                  <th style={{ textAlign: 'center' }}>Cards</th>
                 </tr>
               </thead>
               <tbody>
                 {goldenBootData.map((player) => (
                   <tr key={player.rank}>
-                    <td style={{ fontWeight: 700, color: player.rank === 1 ? 'var(--color-gold)' : player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-primary)' }}>
+                    <td style={{ 
+                      fontWeight: 700, 
+                      color: player.rank <= 3 ? 'var(--color-gold)' : 'var(--text-secondary)',
+                      fontSize: player.rank <= 3 ? '1.05rem' : '0.9rem'
+                    }}>
                       {player.rank}
                     </td>
                     <td>
-                      <div className="team-cell">
-                        <span style={{ fontWeight: 600 }}>{player.name}</span>
-                      </div>
+                      <span style={{ fontWeight: 600 }}>{player.name}</span>
                     </td>
                     <td>
                       <div className="team-cell">
-                        <img 
-                          className="flag-img" 
-                          src={`https://flagcdn.com/w40/${player.teamCode.toLowerCase()}.png`} 
-                          alt={player.teamCode} 
-                          onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
-                        />
+                        <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(player.teamCode)}</span>
                         <span>{player.team}</span>
                       </div>
                     </td>
                     <td>{player.position}</td>
-                    <td style={{ fontWeight: 700, color: 'var(--color-gold)', fontSize: '1.1rem' }}>{player.goals}</td>
-                    <td>{player.assists}</td>
-                    <td>{player.minutes}'</td>
-                    <td>{player.yellowCards}🟨 {player.redCards}🟥</td>
+                    <td style={{ fontWeight: 700, color: 'var(--color-gold)', fontSize: '1.1rem', textAlign: 'center' }}>{player.goals}</td>
+                    <td style={{ textAlign: 'center' }}>{player.assists}</td>
+                    <td style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{player.minutes}'</td>
+                    <td style={{ textAlign: 'center' }}>
+                      {player.yellowCards > 0 && <span style={{ color: '#f59e0b', marginRight: '4px' }}>{player.yellowCards}🟨</span>}
+                      {player.redCards > 0 && <span style={{ color: '#ef4444' }}>{player.redCards}🟥</span>}
+                      {player.yellowCards === 0 && player.redCards === 0 && <span style={{ color: 'var(--text-muted)' }}>-</span>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -160,7 +205,6 @@ export default function Stats() {
 
       {activeTab === 'players' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          {/* Filters */}
           <div className="card">
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <select 
@@ -183,7 +227,7 @@ export default function Stats() {
               >
                 <option value="ALL">All Teams</option>
                 {teams.map(t => (
-                  <option key={t.code} value={t.code}>{t.name}</option>
+                  <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
                 ))}
               </select>
               <div style={{ flex: 2, minWidth: '200px', position: 'relative' }}>
@@ -200,7 +244,6 @@ export default function Stats() {
             </div>
           </div>
 
-          {/* Player List */}
           <div className="card">
             <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Showing {filteredPlayers.length} of {allPlayers.length} players
@@ -211,11 +254,11 @@ export default function Stats() {
                   <tr>
                     <th>Player</th>
                     <th>Team</th>
-                    <th>Position</th>
+                    <th>Pos</th>
                     <th>Club</th>
-                    <th>Age</th>
-                    <th>Goals</th>
-                    <th>Assists</th>
+                    <th style={{ textAlign: 'center' }}>Age</th>
+                    <th style={{ textAlign: 'center' }}>Goals</th>
+                    <th style={{ textAlign: 'center' }}>Assists</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -229,28 +272,21 @@ export default function Stats() {
                     filteredPlayers.map((p, idx) => (
                       <tr key={`${p.teamCode}-${p.name}-${idx}`}>
                         <td>
-                          <div className="team-cell">
-                            <span style={{ fontWeight: 600 }}>{p.name}</span>
-                          </div>
+                          <span style={{ fontWeight: 600 }}>{p.name}</span>
                         </td>
                         <td>
                           <div className="team-cell">
-                            <img 
-                              className="flag-img" 
-                              src={`https://flagcdn.com/w40/${p.teamCode.toLowerCase()}.png`} 
-                              alt={p.teamCode}
-                              onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
-                            />
-                            <span>{p.teamCode}</span>
+                            <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(p.teamCode)}</span>
+                            <span>{p.teamName}</span>
                           </div>
                         </td>
                         <td>{p.position}</td>
                         <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{p.club}</td>
-                        <td>{p.age}</td>
-                        <td style={{ fontWeight: p.goals > 0 ? 700 : 400, color: p.goals > 0 ? 'var(--color-gold)' : 'var(--text-primary)' }}>
+                        <td style={{ textAlign: 'center' }}>{p.age}</td>
+                        <td style={{ fontWeight: p.goals > 0 ? 700 : 400, color: p.goals > 0 ? 'var(--color-gold)' : 'var(--text-primary)', textAlign: 'center' }}>
                           {p.goals}
                         </td>
-                        <td>{p.assists}</td>
+                        <td style={{ textAlign: 'center' }}>{p.assists}</td>
                       </tr>
                     ))
                   )}
@@ -262,89 +298,85 @@ export default function Stats() {
       )}
 
       {activeTab === 'compare' && (
-        <div className="card">
-          <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Target size={20} /> Team Comparison
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-            Compare squads between any two qualified nations. Select teams below to see head-to-head player statistics.
-          </p>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <label className="form-label">Team 1</label>
-              <select 
-                value={team1} 
-                onChange={(e) => setTeam1(e.target.value)}
-                className="form-control"
-              >
-                <option value="">Select team...</option>
-                {teams.map(t => (
-                  <option key={t.code} value={t.code}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-            <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <label className="form-label">Team 2</label>
-              <select 
-                value={team2} 
-                onChange={(e) => setTeam2(e.target.value)}
-                className="form-control"
-              >
-                <option value="">Select team...</option>
-                {teams.map(t => (
-                  <option key={t.code} value={t.code}>{t.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          
-          {team1 && team2 && team1 !== team2 && (
-            <div style={{ marginTop: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                {[team1, team2].map(code => {
-                  const team = squadData.find(t => t.code === code);
-                  const teamPlayers = allPlayers.filter(p => p.teamCode === code);
-                  const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
-                  const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
-                  return (
-                    <div key={code} className="card" style={{
-                      background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
-                      borderColor: 'var(--color-gold)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <img 
-                          className="flag-img" 
-                          src={`https://flagcdn.com/w60/${code.toLowerCase()}.png`} 
-                          alt={code}
-                          style={{ width: '60px', height: '40px' }}
-                          onError={(e) => { e.target.src = `https://flagcdn.com/w60/gb.png`; }}
-                        />
-                        <div>
-                          <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group}</p>
-                        </div>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
-                          <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="card">
+            <h3 style={{ color: 'var(--color-gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Target size={20} /> Team Comparison
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              Compare squads between any two qualified nations.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <label className="form-label">Team 1</label>
+                <select 
+                  value={team1} 
+                  onChange={(e) => setTeam1(e.target.value)}
+                  className="form-control"
+                >
+                  <option value="">Select team...</option>
+                  {teams.map(t => (
+                    <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
+                  ))}
+                </select>
+              </div>
+              <ArrowRight size={24} color="var(--color-gold)" style={{ marginTop: '1.5rem' }} />
+              <div style={{ flex: 1, minWidth: '200px' }}>
+                <label className="form-label">Team 2</label>
+                <select 
+                  value={team2} 
+                  onChange={(e) => setTeam2(e.target.value)}
+                  className="form-control"
+                >
+                  <option value="">Select team...</option>
+                  {teams.map(t => (
+                    <option key={t.code} value={t.code}>{getFlagEmoji(t.code)} {t.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          )}
+            
+            {team1 && team2 && team1 !== team2 && (
+              <div style={{ marginTop: '1.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  {[team1, team2].map(code => {
+                    const team = squadData.find(t => t.code === code);
+                    const teamPlayers = allPlayers.filter(p => p.teamCode === code);
+                    const goals = teamPlayers.reduce((sum, p) => sum + p.goals, 0);
+                    const assists = teamPlayers.reduce((sum, p) => sum + p.assists, 0);
+                    return (
+                      <div key={code} className="card" style={{
+                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(20, 26, 51, 0.9) 100%)',
+                        borderColor: 'var(--color-gold)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                          <span style={{ fontSize: '2.5rem' }}>{getFlagEmoji(code)}</span>
+                          <div>
+                            <h3 style={{ color: 'var(--color-gold)', fontSize: '1.25rem' }}>{team?.name}</h3>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{team?.group}</p>
+                          </div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', textAlign: 'center' }}>
+                          <div>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{teamPlayers.length}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Players</p>
+                          </div>
+                          <div>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{goals}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Goals</p>
+                          </div>
+                          <div>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-gold)' }}>{assists}</p>
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Assists</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -362,12 +394,12 @@ export default function Stats() {
                 <tr>
                   <th>Team</th>
                   <th>Top Scorer</th>
-                  <th>Goals</th>
-                  <th>Assists</th>
+                  <th style={{ textAlign: 'center' }}>Goals</th>
+                  <th style={{ textAlign: 'center' }}>Assists</th>
                 </tr>
               </thead>
               <tbody>
-                {squadData.sort((a, b) => b.name.localeCompare(a.name)).map(team => {
+                {[...squadData].sort((a, b) => a.name.localeCompare(b.name)).map(team => {
                   const teamScorers = goldenBootData
                     .filter(s => s.teamCode === team.code)
                     .sort((a, b) => b.goals - a.goals);
@@ -377,18 +409,13 @@ export default function Stats() {
                     <tr key={team.code}>
                       <td>
                         <div className="team-cell">
-                          <img 
-                            className="flag-img" 
-                            src={`https://flagcdn.com/w40/${team.code.toLowerCase()}.png`} 
-                            alt={team.code}
-                            onError={(e) => { e.target.src = `https://flagcdn.com/w40/gb.png`; }}
-                          />
+                          <span style={{ fontSize: '1.2rem' }}>{getFlagEmoji(team.code)}</span>
                           <span style={{ fontWeight: 600 }}>{team.name}</span>
                         </div>
                       </td>
                       <td>{topScorer.name}</td>
-                      <td style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{topScorer.goals}</td>
-                      <td>{topScorer.assists}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--color-gold)', textAlign: 'center' }}>{topScorer.goals}</td>
+                      <td style={{ textAlign: 'center' }}>{topScorer.assists}</td>
                     </tr>
                   );
                 })}
