@@ -125,7 +125,7 @@ export default function Squads() {
           <select value={filterConfederation} onChange={(e) => setFilterConfederation(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '140px' }}>
             <option value="ALL">All Confederations</option>
             {confederations.map(c => (
-              <option key={c.id} value={c.id}>{c.name.split(' ').pop()}</option>
+              <option key={c.id} value={c.id}>{c.id}</option>
             ))}
           </select>
           <select value={filterGroup} onChange={(e) => setFilterGroup(e.target.value)} className="form-control" style={{ flex: 1, minWidth: '120px' }}>
@@ -169,7 +169,7 @@ export default function Squads() {
         </button>
         {selectedTeam && (
           <button className="tab-btn active">
-            <Shirt size={14} /> {selectedTeamData?.flag} {selectedTeamData?.name}
+            <Shirt size={14} /> {getFlagEmoji(selectedTeamData?.code)} {selectedTeamData?.name}
           </button>
         )}
       </div>
