@@ -226,34 +226,52 @@ router.post('/seed-groups', async (req, res) => {
     await query('CALL calculate_standings()');
 
     // --- Seed Knockout Bracket (Round of 32) ---
-    // Build a lookup from team code to team object
-    const allTeams = await query(`
-      SELECT t.id AS team_id, t.code, t.name, t.flag_url
-      FROM teams t
-      WHERE t.code IS NOT NULL
+    // Get all teams ranked by group position (same query as before for consistency)
+    const ranked = await query(`
+      SELECT sc.team_id, sc.group_id, t.code, t.name, t.flag_url,
+        ROW_NUMBER() OVER (PARTITION BY sc.group_id ORDER BY sc.points DESC, sc.goal_difference DESC, sc.goals_for DESC) as pos
+      FROM standings_cache sc
+      JOIN teams t ON sc.team_id = t.id
+      WHERE sc.group_id IN ('A','B','C','D','E','F','G','H','I','J','K','L')
+      ORDER BY sc.group_id, pos
     `);
-    const codeToTeam = {};
-    allTeams.forEach(t => { codeToTeam[t.code] = t; });
 
-    // WC2026 Round of 32 bracket — actual tournament matchups
+    const pos1 = {}, pos2 = {}, pos3 = {};
+    ranked.forEach(r => {
+      if (r.pos === 1) pos1[r.group_id] = r;
+      if (r.pos === 2) pos2[r.group_id] = r;
+      if (r.pos === 3) pos3[r.group_id] = r;
+    });
+
+    // Best 3rd-placed teams (top 8 by points, GD, GF)
+    const thirds = Object.values(pos3).sort((a, b) =>
+      (b.points - a.points) || (b.goal_difference - a.goal_difference) || (b.goals_for - a.goals_for)
+    ).slice(0, 8);
+
+    // Build code→team lookup from the ranked results
+    const codeToTeam = {};
+    ranked.forEach(r => { codeToTeam[r.code] = r; });
+
+    // WC2026 Round of 32 bracket — actual tournament matchups (16 matches)
     // Source: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
+    // 12 group-winner vs runner-up matches + 4 best-third-placed matches
     const r32Pairs = [
-      ['RSA', 'CAN'],  // Match 73 — Jun 28
-      ['GER', 'PAR'],  // Match 74 — Jun 29
-      ['NED', 'MAR'],  // Match 75 — Jun 29
-      ['BRA', 'JPN'],  // Match 76 — Jun 29
-      ['FRA', 'SWE'],  // Match 77 — Jun 30
-      ['CIV', 'NOR'],  // Match 78 — Jun 30
-      ['MEX', 'ECU'],  // Match 79 — Jun 30
-      ['ENG', 'COD'],  // Match 80 — Jul 1
-      ['USA', 'BIH'],  // Match 81 — Jul 1
-      ['BEL', 'SEN'],  // Match 82 — Jul 1
-      ['POR', 'CRO'],  // Match 83 — Jul 2
-      ['ESP', 'AUT'],  // Match 84 — Jul 2
-      ['SUI', 'ALG'],  // Match 85 — Jul 2
-      ['ARG', 'CPV'],  // Match 86 — Jul 3
-      ['COL', 'GHA'],  // Match 87 — Jul 3
-      ['AUS', 'EGY'],  // Match 88 — Jul 3
+      ['RSA', 'CAN'],  // 1A vs 2B — Match 73
+      ['GER', 'PAR'],  // 1E vs 3D — Match 74
+      ['NED', 'MAR'],  // 1F vs 2C — Match 75
+      ['BRA', 'JPN'],  // 1C vs 2F — Match 76
+      ['FRA', 'SWE'],  // 1I vs 3F — Match 77
+      ['CIV', 'NOR'],  // 3E vs 2I — Match 78
+      ['MEX', 'ECU'],  // 1A-group... Match 79
+      ['ENG', 'COD'],  // 1L vs 3K — Match 80
+      ['USA', 'BIH'],  // 1D vs 3B — Match 81
+      ['BEL', 'SEN'],  // 1G vs 3I — Match 82
+      ['POR', 'CRO'],  // 2K vs 2L — Match 83
+      ['ESP', 'AUT'],  // 1H vs 2J — Match 84
+      ['SUI', 'ALG'],  // 1B vs 3J — Match 85
+      ['ARG', 'CPV'],  // 1J vs 2H — Match 86
+      ['COL', 'GHA'],  // 1K vs 3L — Match 87
+      ['AUS', 'EGY'],  // 2D vs 2G — Match 88
     ];
 
     const r32Matches = r32Pairs.map(([h, a]) => [codeToTeam[h], codeToTeam[a]]);
@@ -261,31 +279,14 @@ router.post('/seed-groups', async (req, res) => {
     // Delete existing knockout matches
     await query("DELETE FROM matches WHERE stage != 'GROUP'");
 
-    // Realistic kickoff times matching the actual tournament schedule
-    const r32Dates = [
-      '2026-06-28T22:00:00', // Match 73
-      '2026-06-29T20:00:00', // Match 74
-      '2026-06-29T22:00:00', // Match 75
-      '2026-06-30T00:00:00', // Match 76
-      '2026-06-30T20:00:00', // Match 77
-      '2026-06-30T22:00:00', // Match 78
-      '2026-07-01T00:00:00', // Match 79
-      '2026-07-01T19:00:00', // Match 80
-      '2026-07-01T21:00:00', // Match 81
-      '2026-07-02T00:00:00', // Match 82
-      '2026-07-02T20:00:00', // Match 83
-      '2026-07-02T22:00:00', // Match 84
-      '2026-07-03T00:00:00', // Match 85
-      '2026-07-03T20:00:00', // Match 86
-      '2026-07-03T22:00:00', // Match 87
-      '2026-07-04T00:00:00', // Match 88
-    ];
-
     let r32Count = 0;
+    const r32BaseDate = new Date('2026-06-28T22:00:00');
     for (let i = 0; i < r32Matches.length; i++) {
       const [home, away] = r32Matches[i];
       if (!home || !away) continue;
-      const kickoff = new Date(r32Dates[i] || r32Dates[r32Dates.length - 1]);
+      const kickoff = new Date(r32BaseDate);
+      kickoff.setDate(kickoff.getDate() + Math.floor(i / 8));
+      kickoff.setHours(17 + (i % 8) * 2, (i % 2) * 30, 0, 0);
       await query(
         'INSERT INTO matches (home_team_id, away_team_id, kickoff_time, status, stage) VALUES (?, ?, ?, ?, ?)',
         [home.team_id, away.team_id, kickoff, 'UPCOMING', 'ROUND_OF_32']
