@@ -95,7 +95,7 @@ router.post('/team', authenticateToken, async (req, res) => {
         await tx('INSERT INTO fantasy_picks (fantasy_team_id, player_id) VALUES (?, ?);', [teamId, pid]);
       }
 
-      // 5. Enforce Budget Constraint (100.0m limit) via RAW SQL SUM query
+      // 5. Enforce Budget Constraint (150.0m limit) via RAW SQL SUM query
       const budgetResult = await tx(`
         SELECT SUM(p.cost) AS total_cost
         FROM fantasy_picks fp

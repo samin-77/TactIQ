@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Trophy, Home as HomeIcon, Calendar, Users, BarChart3, ShieldAlert, LogOut, Moon, Sun, BookOpen, Brain, MapPin, Shirt } from 'lucide-react';
@@ -17,6 +17,34 @@ import History from './pages/History';
 import Quiz from './pages/Quiz';
 import Venues from './pages/Venues';
 import Squads from './pages/Squads';
+
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false }; }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <h2 style={{ color: 'var(--color-gold)' }}>Something went wrong</h2>
+          <p style={{ color: 'var(--text-secondary)', margin: '1rem 0' }}>An unexpected error occurred. Please try refreshing the page.</p>
+          <Link to="/" className="btn btn-primary" style={{ marginTop: '1rem' }}>Go Home</Link>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function NotFound() {
+  return (
+    <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+      <h1 style={{ fontSize: '4rem', color: 'var(--color-gold)', margin: 0 }}>404</h1>
+      <h2 style={{ color: 'var(--text-secondary)', margin: '0.5rem 0 1rem' }}>Page Not Found</h2>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>The page you're looking for doesn't exist.</p>
+      <Link to="/" className="btn btn-primary">Go Home</Link>
+    </div>
+  );
+}
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -92,6 +120,7 @@ function Navbar() {
 
 function AppContent() {
   return (
+    <ErrorBoundary>
     <div className="app-container">
       <Navbar />
       <main className="main-content">
@@ -108,12 +137,14 @@ function AppContent() {
           <Route path="/venues" element={<Venues />} />
           <Route path="/squads" element={<Squads />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <footer className="footer">
         <p>&copy; 2026 TactIQ &mdash; Made with ❤️ by Ishfak Mahbub Samin &bull; Syed Owin Efaz &bull; Sharmin Akter Mim</p>
       </footer>
     </div>
+    </ErrorBoundary>
   );
 }
 

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Users, Search, Filter, ChevronDown, ChevronUp, Globe, User, Star, Shirt } from 'lucide-react';
+import { Users, Search, Globe, Shirt } from 'lucide-react';
 import { teams, confederations, groups, positions } from '../data/squadData';
 
 const getFlagEmoji = (countryCode) => {

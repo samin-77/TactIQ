@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Send, ArrowUp, ArrowDown, Trash, MessageSquare, Clock } from 'lucide-react';
+import { Send, ArrowUp, ArrowDown, Trash, MessageSquare, Clock, Calendar } from 'lucide-react';
 
 export default function MatchDetail() {
   const { id } = useParams();
@@ -26,8 +26,9 @@ export default function MatchDetail() {
   useEffect(() => {
     async function loadMatchDetails() {
       try {
-        const userIdParam = user ? `?userId=${user.id}` : '';
-        const res = await fetch(`${apiUrl}/matches/${matchId}${userIdParam}`);
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${apiUrl}/matches/${matchId}`, { headers });
         if (!res.ok) throw new Error('Match not found');
         const data = await res.json();
         
@@ -54,8 +55,9 @@ export default function MatchDetail() {
   useEffect(() => {
     async function loadComments() {
       try {
-        const userIdParam = user ? `&userId=${user.id}` : '';
-        const res = await fetch(`${apiUrl}/matches/${matchId}/comments?sortBy=${commentSort}${userIdParam}`);
+        const headers = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${apiUrl}/matches/${matchId}/comments?sortBy=${commentSort}`, { headers });
         if (res.ok) {
           const data = await res.json();
           setComments(data.comments);
@@ -101,8 +103,9 @@ export default function MatchDetail() {
 
       setPredSuccess('Prediction submitted successfully!');
       // Reload match details
-      const userIdParam = user ? `?userId=${user.id}` : '';
-      const detailRes = await fetch(`${apiUrl}/matches/${matchId}${userIdParam}`);
+      const headers = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const detailRes = await fetch(`${apiUrl}/matches/${matchId}`, { headers });
       const detailData = await detailRes.json();
       setExistingPrediction(detailData.userPrediction);
     } catch (err) {
@@ -134,8 +137,9 @@ export default function MatchDetail() {
 
       setNewComment('');
       // Reload comments
-      const userIdParam = user ? `&userId=${user.id}` : '';
-      const cRes = await fetch(`${apiUrl}/matches/${matchId}/comments?sortBy=${commentSort}${userIdParam}`);
+      const cHeaders = {};
+      if (token) cHeaders['Authorization'] = `Bearer ${token}`;
+      const cRes = await fetch(`${apiUrl}/matches/${matchId}/comments?sortBy=${commentSort}`, { headers: cHeaders });
       const cData = await cRes.json();
       setComments(cData.comments);
     } catch (err) {

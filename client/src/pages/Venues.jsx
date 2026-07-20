@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Users, Thermometer, Building2, Search, Filter, ChevronDown, ChevronUp, Globe } from 'lucide-react';
+import { MapPin, Users, Building2, Search, Globe } from 'lucide-react';
 import { stadiums, regions, tournamentStats } from '../data/stadiumData';
 
 const countryColors = {

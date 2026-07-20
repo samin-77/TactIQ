@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { query, transaction } = require('../db');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { authenticateToken, optionalAuth, requireAdmin } = require('../middleware/auth');
 
 // GET /api/matches
 // Retrieve all matches with optional filters
@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
     res.json({ matches });
   } catch (error) {
     console.error('Error fetching matches:', error);
-    res.status(500).json({ error: 'Server error fetching matches', details: error.message });
+    res.status(500).json({ error: 'Server error fetching matches' });
   }
 });
 
@@ -64,9 +64,9 @@ router.get('/predictions/leaderboard', async (req, res) => {
 
 // GET /api/matches/:id
 // Get detail match information (events, match stats, and optionally user prediction)
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
   const matchId = parseInt(req.params.id);
-  const userId = req.query.userId ? parseInt(req.query.userId) : null;
+  const userId = req.user ? req.user.id : null;
 
   try {
     const matches = await query(`
@@ -193,10 +193,10 @@ router.post('/:id/prediction', authenticateToken, async (req, res) => {
 
 // GET /api/matches/:id/comments
 // Get discussion comments sorted by newest or upvotes
-router.get('/:id/comments', async (req, res) => {
+router.get('/:id/comments', optionalAuth, async (req, res) => {
   const matchId = parseInt(req.params.id);
   const { sortBy } = req.query; // 'newest' or 'votes'
-  const userId = req.query.userId ? parseInt(req.query.userId) : null;
+  const userId = req.user ? req.user.id : null;
 
   const orderBy = sortBy === 'votes' ? 'net_votes DESC, c.created_at DESC' : 'c.created_at DESC';
 
@@ -229,6 +229,9 @@ router.post('/:id/comments', authenticateToken, async (req, res) => {
 
   if (!commentText || commentText.trim() === '') {
     return res.status(400).json({ error: 'Comment text cannot be empty' });
+  }
+  if (commentText.length > 1000) {
+    return res.status(400).json({ error: 'Comment must be 1000 characters or less' });
   }
 
   try {

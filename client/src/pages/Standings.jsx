@@ -52,7 +52,7 @@ export default function Standings() {
     }
     fetchData();
     fetch(`${apiUrl}/bracket/champion-leaderboard`).then(r => r.json()).then(d => setChampionLeaderboard(d.leaderboard || [])).catch(() => {});
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     if (!user || activeTab !== 'bracket') return;

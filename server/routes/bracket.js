@@ -93,8 +93,8 @@ router.get('/champion-leaderboard', async (req, res) => {
   }
 });
 
-// Seed missing teams and R32 matches into existing database (non-destructive)
-router.get('/seed-r32', async (req, res) => {
+// Seed missing teams and R32 matches into existing database (non-destructive, admin only)
+router.get('/seed-r32', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const newTeams = [
       { name: 'South Africa', code: 'RSA', group_id: 'A', flag_url: 'https://flagcdn.com/w160/za.png' },

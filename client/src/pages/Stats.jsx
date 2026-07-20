@@ -23,7 +23,7 @@ const fifaToIso = {
   GAB:'ga',NIG:'ne',CHA:'td',CGO:'cg',GNB:'gw',GAM:'gm',LBR:'lr',SSD:'ss',
   COM:'km',MRI:'mu',DMA:'dm',GRN:'gd',ANT:'aw',BAR:'bb',SKN:'kn',LCA:'lc',
   VCT:'vc',TCA:'tc',VGB:'vg',BER:'bm',SMR:'sm',LIE:'li',AND:'ad',MON:'mc',
-  FRO:'fo',MLT:'mt',CYP:'cy',LUX:'lu',GIB:'gi',MAS:'my',ERI:'er',
+  FRO:'fo',MLT:'mt',CYP:'cy',LUX:'lu',GIB:'gi',ERI:'er',
 };
 
 function getFlagUrl(code) {
@@ -355,10 +355,12 @@ export default function Stats() {
             <table className="custom-table">
               <thead><tr><th>Team</th><th>Top Scorer</th><th style={{ textAlign: 'center' }}>Goals</th><th style={{ textAlign: 'center' }}>Assists</th></tr></thead>
               <tbody>
-                {[...squadData].sort((a, b) => a.name.localeCompare(b.name)).map(team => {
+                {[...squadData].sort((a, b) => a.name.localeCompare(b.name)).filter(team => {
+                  const scorers = goldenBootData.filter(s => s.teamCode === team.code);
+                  return scorers.length > 0;
+                }).map(team => {
                   const scorers = goldenBootData.filter(s => s.teamCode === team.code).sort((a, b) => b.goals - a.goals);
                   const top = scorers[0];
-                  if (!top) return null;
                   return (
                     <tr key={team.code}>
                       <td><div className="team-cell"><Flag code={team.code} /><span style={{ fontWeight: 600 }}>{team.name}</span></div></td>

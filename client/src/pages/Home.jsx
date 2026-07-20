@@ -8,18 +8,18 @@ const AnimatedCounter = ({ value, label, icon: Icon, delay }) => {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
     if (value === 0) return;
+    let intervalId;
     const timer = setTimeout(() => {
       const steps = 30;
       const increment = value / steps;
       let current = 0;
-      const interval = setInterval(() => {
+      intervalId = setInterval(() => {
         current += increment;
-        if (current >= value) { setDisplay(value); clearInterval(interval); }
+        if (current >= value) { setDisplay(value); clearInterval(intervalId); }
         else setDisplay(Math.floor(current));
       }, 40);
-      return () => clearInterval(interval);
     }, delay * 100);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); if (intervalId) clearInterval(intervalId); };
   }, [value, delay]);
 
   return (

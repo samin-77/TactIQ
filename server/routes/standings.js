@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../db');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 // GET /api/standings/groups
 // Returns all groups and their team standings from standings_cache with form
@@ -106,7 +107,7 @@ router.get('/bracket', async (req, res) => {
 
 // POST /api/standings/seed-groups
 // Replaces all group data with exact teams, groups, and match scores from user spec
-router.post('/seed-groups', async (req, res) => {
+router.post('/seed-groups', authenticateToken, requireAdmin, async (req, res) => {
   try {
     // All teams that may not yet be in DB (5 new + 7 original extras)
     const newTeams = [
