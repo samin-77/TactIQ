@@ -10,8 +10,19 @@ const PORT = process.env.PORT || 5002;
 const allowedOrigins = [
   'http://localhost:5173',      // Local Vite dev server
   'http://127.0.0.1:5173',     // Alternative localhost
-  process.env.FRONTEND_URL     // Production frontend URL (set in environment)
-].filter(Boolean);             // Remove undefined values
+  'https://tact-iq-mrpi.vercel.app',  // Production frontend (Vercel)
+  process.env.FRONTEND_URL     // Additional frontend URL from environment
+].filter(Boolean);
+
+// Also support comma-separated FRONTEND_URLS env var
+if (process.env.FRONTEND_URLS) {
+  process.env.FRONTEND_URLS.split(',').forEach(url => {
+    const trimmed = url.trim();
+    if (trimmed && !allowedOrigins.includes(trimmed)) {
+      allowedOrigins.push(trimmed);
+    }
+  });
+}
 
 app.use(cors({
   origin: function (origin, callback) {
