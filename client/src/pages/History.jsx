@@ -2,6 +2,27 @@ import { useState } from 'react';
 import { BookOpen, Trophy, Users, Star, Award, Search, Calendar, Medal, Target, Sparkles } from 'lucide-react';
 import { tournaments, legendaryPlayers, iconicMoments, recordHolders } from '../data/worldCupHistory';
 
+const nameToCode = {
+  'Argentina':'ar','Australia':'au','Belgium':'be','Brazil':'br','Cameroon':'cm','Canada':'ca',
+  'Chile':'cl','China':'cn','Colombia':'co','Costa Rica':'cr','Croatia':'hr','Cuba':'cu',
+  'Czech Republic':'cz','Denmark':'dk','Ecuador':'ec','England':'gb-eng','France':'fr',
+  'Germany':'de','Ghana':'gh','Greece':'gr','Honduras':'hn','Hungary':'hu','Iceland':'is',
+  'Iran':'ir','Ireland':'ie','Italy':'it','Ivory Coast':'ci','Jamaica':'jm','Japan':'jp',
+  'Mexico':'mx','Morocco':'ma','Netherlands':'nl','New Zealand':'nz','Nigeria':'ng',
+  'Norway':'no','Panama':'pa','Paraguay':'py','Peru':'pe','Poland':'pl','Portugal':'pt',
+  'Qatar':'qa','Romania':'ro','Russia':'ru','Saudi Arabia':'sa','Scotland':'gb-sct',
+  'Senegal':'sn','Serbia':'rs','Slovakia':'sk','Slovenia':'si','South Africa':'za',
+  'South Korea':'kr','Spain':'es','Sweden':'se','Switzerland':'ch','Tunisia':'tn',
+  'Turkey':'tr','USA':'us','Ukraine':'ua','Uruguay':'uy','Wales':'gb-wls','Germany1':'de',
+  'South Korea & Japan':'kr','USA, Canada & Mexico':'us',
+};
+
+function FlagImg({ code, size = '1.2rem' }) {
+  const iso = nameToCode[code] || code?.toLowerCase();
+  if (!iso) return <span style={{ fontSize: size, opacity: 0.5 }}>[{code}]</span>;
+  return <img src={`https://flagcdn.com/w40/${iso}.png`} alt={code} style={{ width: '20px', height: '14px', borderRadius: '2px', verticalAlign: 'middle', display: 'inline-block' }} />;
+}
+
 export default function History() {
   const [activeTab, setActiveTab] = useState('tournaments');
   const [searchName, setSearchName] = useState('');
@@ -71,7 +92,7 @@ export default function History() {
                     <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-gold)', margin: 0 }}>
                       {t.year}
                     </h3>
-                    <span style={{ fontSize: '2rem' }}>{t.hostFlag}</span>
+                    <FlagImg code={t.host} size="1.5rem" />
                   </div>
                   <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '0.9rem' }}>
                     Host: <strong>{t.host}</strong>
@@ -83,13 +104,13 @@ export default function History() {
                     <div>
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Champion</p>
                       <p style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-gold)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '1.3rem' }}>{t.winnerFlag}</span> {t.winner}
+                        <FlagImg code={t.winner} /> {t.winner}
                       </p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Runner-up</p>
                       <p style={{ fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                        <span>{t.runnerUpFlag}</span> {t.runnerUp}
+                        <FlagImg code={t.runnerUp} /> {t.runnerUp}
                       </p>
                     </div>
                   </div>
@@ -204,7 +225,7 @@ export default function History() {
                       <tr key={idx}>
                         <td>
                           <div className="team-cell">
-                            <span style={{ fontSize: '1.2rem' }}>{p.flag}</span>
+                            <FlagImg code={p.country} />
                             <span style={{ fontWeight: 600 }}>{p.name}</span>
                           </div>
                         </td>
