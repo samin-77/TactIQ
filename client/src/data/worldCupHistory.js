@@ -1,5 +1,25 @@
 export const tournaments = [
   {
+    year: 2026,
+    host: 'USA, Canada & Mexico',
+    hostFlag: '🇺🇸',
+    winner: 'Spain',
+    winnerFlag: '🇪🇸',
+    runnerUp: 'Argentina',
+    runnerUpFlag: '🇦🇷',
+    thirdPlace: 'England',
+    thirdPlaceFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    goldenBoot: { name: 'Kylian Mbappé', country: 'France', goals: 10 },
+    goldenBall: { name: 'Rodri', country: 'Spain' },
+    goldenGlove: { name: 'Unai Simón', country: 'Spain' },
+    bestYoungPlayer: { name: 'Pau Cubarsí', country: 'Spain' },
+    matches: 104,
+    goals: 182,
+    attendance: '3,600,000',
+    finalScore: 'Spain 1-0 Argentina (AET)',
+    notable: 'First 48-team World Cup. Spain wins second title with Ferran Torres extra-time winner. First World Cup hosted by three nations.'
+  },
+  {
     year: 2022,
     host: 'Qatar',
     hostFlag: '🇶🇦',

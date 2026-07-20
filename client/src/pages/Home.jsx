@@ -116,8 +116,8 @@ export default function Home() {
         <p className="hero-subtitle animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           The ultimate Fan Engagement & Analytics Hub for the <strong style={{ color: 'var(--text-primary)' }}>FIFA World Cup 2026</strong>.
           {!user
-            ? 'Predict scores, build your fantasy squad, explore 22 tournaments of history, and track every match live.'
-            : 'Pick a feature below and start exploring.'}
+            ? 'Spain are world champions! Relive every goal, build your fantasy squad, explore 23 tournaments of history, and track all 104 matches.'
+            : 'Spain are world champions! Pick a feature below and start exploring.'}
         </p>
 
         <div className="hero-ctas animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
