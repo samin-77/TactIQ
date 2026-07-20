@@ -2,6 +2,26 @@ import { useState, useMemo } from 'react';
 import { Users, Search, Globe, Shirt } from 'lucide-react';
 import { teams, confederations, groups, positions } from '../data/squadData';
 
+const fifaToIso = {
+  ARG:'ar',AUS:'au',AUT:'at',BEL:'be',BRA:'br',BUL:'bg',
+  CAN:'ca',CHI:'cl',CHN:'cn',COL:'co',CRC:'cr',CRO:'hr',CIV:'ci',CUW:'cw',
+  CPV:'cv',CZE:'cz',COD:'cd',DEN:'dk',ECU:'ec',EGY:'eg',ENG:'gb-eng',ESP:'es',
+  FRA:'fr',GER:'de',GHA:'gh',GRE:'gr',HAI:'ht',HUN:'hu',IRN:'ir',IRQ:'iq',
+  ISL:'is',ITA:'it',JAM:'jm',JPN:'jp',JOR:'jo',KAZ:'kz',KOR:'kr',KOS:'xk',
+  KSA:'sa',MAR:'ma',MEX:'mx',NED:'nl',NZL:'nz',NOR:'no',NGA:'ng',PAN:'pa',
+  PAR:'py',PER:'pe',POL:'pl',POR:'pt',QAT:'qa',ROU:'ro',RSA:'za',SCO:'gb-sct',
+  SEN:'sn',SER:'rs',SUI:'ch',SWE:'se',TUN:'tn',TUR:'tr',UKR:'ua',URU:'uy',
+  USA:'us',UZB:'uz',VEN:'ve',WAL:'gb-wls',BIH:'ba',ALG:'dz',CMR:'cm',
+  PHI:'ph',THA:'th',IDN:'id',IND:'in',PAK:'pk',BAN:'bd',SRI:'lk',
+  GEO:'ge',ARM:'am',AZE:'az',MLI:'ml',GAB:'ga',
+};
+
+function Flag({ code, size = 20 }) {
+  const iso = fifaToIso[code];
+  if (!iso) return null;
+  return <img src={`https://flagcdn.com/w40/${iso}.png`} alt={code} style={{ width: size, height: Math.round(size * 0.67), borderRadius: 2, objectFit: 'cover', verticalAlign: 'middle' }} />;
+}
+
 const getFlagEmoji = (countryCode) => {
   if (!countryCode || countryCode.length !== 2) return '';
   const codePoints = countryCode
@@ -169,7 +189,7 @@ export default function Squads() {
         </button>
         {selectedTeam && (
           <button className="tab-btn active">
-            <Shirt size={14} /> {getFlagEmoji(selectedTeamData?.code)} {selectedTeamData?.name}
+            <Shirt size={14} /> <Flag code={selectedTeamData?.code} size={16} /> {selectedTeamData?.name}
           </button>
         )}
       </div>
@@ -245,7 +265,7 @@ export default function Squads() {
                       onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-glass)'; }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                        <span style={{ fontSize: '2rem' }}>{getFlagEmoji(team.code)}</span>
+                        <Flag code={team.code} size={32} />
                         <div>
                           <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{team.name}</p>
                           <p style={{ margin: 0, fontSize: '0.7rem', color: confederationColors[team.confederation] }}>{team.confederation}</p>
@@ -277,7 +297,7 @@ export default function Squads() {
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-glass)'; }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <span style={{ fontSize: '1.75rem' }}>{getFlagEmoji(team.code)}</span>
+                <Flag code={team.code} size={28} />
                 <div style={{ minWidth: 0 }}>
                   <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{team.name}</p>
                   <p style={{ margin: 0, fontSize: '0.65rem', color: confederationColors[team.confederation] }}>{team.confederation} · Group {team.group}</p>

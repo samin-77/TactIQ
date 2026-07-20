@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Users, Building2, Search, Globe } from 'lucide-react';
+import { MapPin, Users, Building2, Search, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 import { stadiums, regions, tournamentStats } from '../data/stadiumData';
 
 const countryColors = {
@@ -13,6 +13,12 @@ const countryNames = {
   MX: 'Mexico',
   CA: 'Canada'
 };
+
+function CountryFlag({ code, size = 20 }) {
+  if (!code) return null;
+  const url = `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
+  return <img src={url} alt={code} style={{ width: size, height: Math.round(size * 0.67), borderRadius: 2, objectFit: 'cover', verticalAlign: 'middle' }} />;
+}
 
 export default function Venues() {
   const [searchCity, setSearchCity] = useState('');
@@ -88,9 +94,9 @@ export default function Venues() {
             style={{ flex: 1, minWidth: '130px' }}
           >
             <option value="ALL">All Countries</option>
-            <option value="US">🇺🇸 United States</option>
-            <option value="MX">🇲🇽 Mexico</option>
-            <option value="CA">🇨🇦 Canada</option>
+            <option value="US">United States</option>
+            <option value="MX">Mexico</option>
+            <option value="CA">Canada</option>
           </select>
           <select
             value={filterRegion}
@@ -129,7 +135,7 @@ export default function Venues() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontSize: '1.5rem' }}>{stadium.countryFlag}</span>
+                      <CountryFlag code={stadium.countryCode} size={24} />
                       <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                         {stadium.name}
                       </h3>
@@ -306,7 +312,7 @@ export default function Venues() {
               textAlign: 'center'
             }}>
               <div style={{ marginBottom: '0.75rem' }}>
-                <span style={{ fontSize: '2rem', display: 'block', marginBottom: '0.25rem' }}>{code === 'US' ? '🇺🇸' : code === 'MX' ? '🇲🇽' : '🇨🇦'}</span>
+                <div style={{ display: 'block', marginBottom: '0.25rem' }}><CountryFlag code={code} size={40} /></div>
                 <span style={{ fontWeight: 700, color: countryColors[code], fontSize: '1rem' }}>{countryNames[code]}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '0.5rem' }}>
