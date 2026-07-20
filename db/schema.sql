@@ -117,6 +117,7 @@ CREATE TABLE fantasy_teams (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     team_name VARCHAR(100) NOT NULL,
+    squad_rating INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     -- UNIQUE constraint: A user can only have one fantasy team
     CONSTRAINT unique_user_fantasy_team UNIQUE (user_id),

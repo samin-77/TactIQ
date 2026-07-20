@@ -1,6 +1,9 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
+// Determine if we need SSL (TiDB Cloud requires it)
+const useSSL = process.env.DB_SSL === 'true' || process.env.DB_HOST?.includes('tidbcloud.com');
+
 // Create connection pool
 const pool = mysql.createPool({
   host: process.env.DB_HOST || '127.0.0.1',
@@ -10,7 +13,11 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'tactiq',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  ssl: useSSL ? {
+    rejectUnauthorized: true,
+    minVersion: 'TLSv1.2',
+  } : undefined,
 });
 
 // Parameterized query helper to enforce raw SQL and parameterized calls
