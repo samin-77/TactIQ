@@ -21,6 +21,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS bracket_champions;
 DROP TABLE IF EXISTS bracket_predictions;
 DROP TABLE IF EXISTS standings_cache;
+DROP TABLE IF EXISTS quiz_attempts;
 
 -- 1. Users Table
 CREATE TABLE users (
@@ -236,6 +237,20 @@ CREATE TABLE standings_cache (
     FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- 18. Quiz Attempts Table
+CREATE TABLE quiz_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    mode ENUM('rapid_fire', 'trivia', 'predictor') NOT NULL DEFAULT 'rapid_fire',
+    score INT NOT NULL DEFAULT 0,
+    correct_count INT DEFAULT 0,
+    total_questions INT DEFAULT 0,
+    time_taken INT DEFAULT 0,
+    difficulty ENUM('easy', 'medium', 'hard', 'mixed') DEFAULT 'mixed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- INDEXES for Query Optimization
 CREATE INDEX idx_matches_kickoff ON matches(kickoff_time);

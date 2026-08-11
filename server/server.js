@@ -47,6 +47,7 @@ const matchesRoutes = require('./routes/matches');
 const statsRoutes = require('./routes/stats');
 const fantasyRoutes = require('./routes/fantasy');
 const bracketRoutes = require('./routes/bracket');
+const quizRoutes = require('./routes/quiz');
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -55,11 +56,36 @@ app.use('/api/matches', matchesRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/fantasy', fantasyRoutes);
 app.use('/api/bracket', bracketRoutes);
+app.use('/api/quiz', quizRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'TactIQ API Server is running.' });
 });
+
+// Auto-migration: ensure quiz_attempts table exists
+const { query: dbQuery } = require('./db');
+async function ensureQuizAttemptsTable() {
+  try {
+    await dbQuery(`
+      CREATE TABLE IF NOT EXISTS quiz_attempts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        mode ENUM('rapid_fire', 'trivia', 'predictor') NOT NULL DEFAULT 'rapid_fire',
+        score INT NOT NULL DEFAULT 0,
+        correct_count INT DEFAULT 0,
+        total_questions INT DEFAULT 0,
+        time_taken INT DEFAULT 0,
+        difficulty ENUM('easy', 'medium', 'hard', 'mixed') DEFAULT 'mixed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+    console.log('quiz_attempts table ensured.');
+  } catch (err) {
+    console.error('Failed to ensure quiz_attempts table:', err.message);
+  }
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -68,6 +94,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`TactIQ Server running on port ${PORT}`);
+  await ensureQuizAttemptsTable();
 });
