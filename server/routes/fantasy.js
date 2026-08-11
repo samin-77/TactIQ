@@ -203,4 +203,47 @@ router.get('/leaderboard', async (req, res) => {
   }
 });
 
+// GET /api/fantasy/team/:fantasyTeamId/public
+// Public read-only endpoint to view any fantasy team's squad
+router.get('/team/:fantasyTeamId/public', async (req, res) => {
+  const fantasyTeamId = parseInt(req.params.fantasyTeamId);
+
+  if (!fantasyTeamId || fantasyTeamId <= 0 || isNaN(fantasyTeamId)) {
+    return res.status(400).json({ error: 'Invalid fantasy team ID' });
+  }
+
+  try {
+    const teams = await query(`
+      SELECT ft.id, ft.team_name, ft.squad_rating, u.username
+      FROM fantasy_teams ft
+      JOIN users u ON ft.user_id = u.id
+      WHERE ft.id = ?;
+    `, [fantasyTeamId]);
+
+    if (teams.length === 0) {
+      return res.status(404).json({ error: 'Fantasy team not found' });
+    }
+
+    const team = teams[0];
+
+    const picks = await query(`
+      SELECT p.name, p.position, p.cost, t.code AS team_code, t.flag_url,
+             COALESCE(SUM(pms.points), 0) AS total_points,
+             COALESCE(SUM(pms.goals), 0) AS total_goals,
+             COALESCE(SUM(pms.assists), 0) AS total_assists
+      FROM fantasy_picks fp
+      JOIN players p ON fp.player_id = p.id
+      JOIN teams t ON p.team_id = t.id
+      LEFT JOIN player_match_stats pms ON p.id = pms.player_id
+      WHERE fp.fantasy_team_id = ?
+      GROUP BY p.id, p.name, p.position, p.cost, t.code, t.flag_url;
+    `, [fantasyTeamId]);
+
+    res.json({ team, picks });
+  } catch (error) {
+    console.error('Error fetching public fantasy team:', error);
+    res.status(500).json({ error: 'Server error fetching fantasy team' });
+  }
+});
+
 module.exports = router;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Users, Trophy, Plus, Trash2, Search, CheckCircle } from 'lucide-react';
+import { Users, Trophy, Plus, Trash2, Search, CheckCircle, Eye, X } from 'lucide-react';
 import FootballLoader from '../components/FootballLoader';
 
 export default function Fantasy() {
@@ -23,6 +23,10 @@ export default function Fantasy() {
   const [filterTeam, setFilterTeam] = useState('ALL');
   const [searchName, setSearchName] = useState('');
   const [teams, setTeams] = useState([]);
+
+  const [viewingTeam, setViewingTeam] = useState(null);
+  const [viewLoading, setViewLoading] = useState(false);
+  const [viewError, setViewError] = useState('');
 
   // Load initial data
   useEffect(() => {
@@ -176,6 +180,39 @@ export default function Fantasy() {
       setSubmitting(false);
     }
   }
+
+  async function handleViewTeam(fantasyTeamId) {
+    setViewLoading(true);
+    setViewError('');
+    setViewingTeam(null);
+    try {
+      const res = await fetch(`${apiUrl}/fantasy/team/${fantasyTeamId}/public`);
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Team not found');
+      }
+      const data = await res.json();
+      setViewingTeam(data);
+    } catch (err) {
+      setViewError(err.message);
+    } finally {
+      setViewLoading(false);
+    }
+  }
+
+  function getRatingColor(rating) {
+    if (rating >= 75) return 'var(--color-green)';
+    if (rating >= 50) return 'var(--color-gold)';
+    return 'var(--color-red)';
+  }
+
+  function getRatingBg(rating) {
+    if (rating >= 75) return 'rgba(0, 200, 117, 0.15)';
+    if (rating >= 50) return 'rgba(212, 175, 55, 0.15)';
+    return 'rgba(255, 59, 48, 0.15)';
+  }
+
+  const POSITION_ORDER = ['GK', 'DF', 'MF', 'FW'];
 
   if (loading) {
     return <FootballLoader text="Loading Fantasy League..." />;
@@ -423,12 +460,13 @@ export default function Fantasy() {
                   <th>Total Points</th>
                   <th>Best Player</th>
                   <th>Best Player Pts</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                       No fantasy teams yet. Be the first to create one!
                     </td>
                   </tr>
@@ -460,11 +498,119 @@ export default function Fantasy() {
                       <td style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{entry.total_points}</td>
                       <td>{entry.best_player_name || 'N/A'}</td>
                       <td>{entry.best_player_points || 0}</td>
+                      <td>
+                        <button
+                          onClick={() => handleViewTeam(entry.fantasy_team_id)}
+                          style={{ background: 'none', border: 'none', color: 'var(--color-gold)', cursor: 'pointer', padding: '0.25rem' }}
+                          title="View Squad"
+                        >
+                          <Eye size={18} />
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {(viewingTeam || viewLoading || viewError) && (
+        <div
+          onClick={() => { setViewingTeam(null); setViewError(''); }}
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.7)', zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--color-surface)', border: '1px solid var(--color-border-glass)',
+              borderRadius: 'var(--radius-md)', padding: '1.5rem', maxWidth: '600px', width: '90%',
+              maxHeight: '85vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ color: 'var(--color-gold)', margin: 0 }}>Squad Details</h3>
+              <button
+                onClick={() => { setViewingTeam(null); setViewError(''); }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {viewLoading && (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <FootballLoader text="Loading squad..." />
+              </div>
+            )}
+
+            {viewError && (
+              <div style={{ color: 'var(--color-red)', textAlign: 'center', padding: '1rem' }}>
+                {viewError}
+              </div>
+            )}
+
+            {viewingTeam && (
+              <>
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '0.75rem', background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border-glass)'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.1rem' }}>{viewingTeam.team.team_name}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>by {viewingTeam.team.username}</div>
+                  </div>
+                  <span style={{
+                    display: 'inline-block', padding: '0.25rem 0.75rem',
+                    borderRadius: 'var(--radius-sm)', fontWeight: 700, fontSize: '0.9rem',
+                    background: getRatingBg(viewingTeam.team.squad_rating || 0),
+                    color: getRatingColor(viewingTeam.team.squad_rating || 0)
+                  }}>
+                    {viewingTeam.team.squad_rating || 0}
+                  </span>
+                </div>
+
+                {POSITION_ORDER.map(pos => {
+                  const posPlayers = (viewingTeam.picks || []).filter(p => p.position === pos);
+                  if (posPlayers.length === 0) return null;
+                  return (
+                    <div key={pos}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                        {pos === 'GK' ? 'Goalkeepers' : pos === 'DF' ? 'Defenders' : pos === 'MF' ? 'Midfielders' : 'Forwards'}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {posPlayers.map(p => (
+                          <div key={p.name} style={{
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                            padding: '0.6rem 0.75rem', background: 'rgba(255,255,255,0.02)',
+                            borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border-glass)'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <img className="flag-img" src={p.flag_url} alt={p.team_code} />
+                              <div>
+                                <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{p.team_code}</div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem' }}>
+                              <span style={{ color: 'var(--text-muted)' }}>{p.total_goals}G {p.total_assists}A</span>
+                              <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{p.total_points} pts</span>
+                              <span style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{p.cost}m</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
           </div>
         </div>
       )}
