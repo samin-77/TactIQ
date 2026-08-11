@@ -60,6 +60,8 @@ export default function Quiz() {
   const [rfSaving, setRfSaving] = useState(false);
   const rfTimerRef = useRef(null);
   const rfStartTimeRef = useRef(null);
+  const rfScoreRef = useRef(0);
+  const rfCorrectRef = useRef(0);
 
   // Global leaderboard state
   const [leaderboard, setLeaderboard] = useState([]);
@@ -90,6 +92,10 @@ export default function Quiz() {
       if (rfTimerRef.current) clearInterval(rfTimerRef.current);
     };
   }, [rfState]);
+
+  // Keep refs in sync with latest score/correct values
+  useEffect(() => { rfScoreRef.current = rfScore; }, [rfScore]);
+  useEffect(() => { rfCorrectRef.current = rfCorrect; }, [rfCorrect]);
 
   const stats = useMemo(() => {
     if (scores.length === 0) return { totalGames: 0, avgScore: 0, bestScore: 0, totalCorrect: 0 };
@@ -273,6 +279,8 @@ export default function Quiz() {
     setRfState('results');
 
     const timeTaken = rfStartTimeRef.current ? Math.round((Date.now() - rfStartTimeRef.current) / 1000) : RAPID_FIRE_TIME;
+    const finalScore = rfScoreRef.current;
+    const finalCorrect = rfCorrectRef.current;
 
     if (token) {
       setRfSaving(true);
@@ -284,8 +292,8 @@ export default function Quiz() {
         },
         body: JSON.stringify({
           mode: 'rapid_fire',
-          score: rfScore,
-          correctCount: rfCorrect,
+          score: finalScore,
+          correctCount: finalCorrect,
           totalQuestions: rfQuestions.length,
           timeTaken,
           difficulty: 'mixed'
@@ -295,7 +303,7 @@ export default function Quiz() {
         .then(() => setRfSaving(false))
         .catch(() => setRfSaving(false));
     }
-  }, [rfScore, rfCorrect, rfQuestions.length, token, apiUrl]);
+  }, [rfQuestions.length, token, apiUrl]);
 
   function resetRapidFire() {
     setRfState('menu');
