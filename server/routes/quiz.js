@@ -45,8 +45,25 @@ router.get('/leaderboard', optionalAuth, async (req, res) => {
   const currentUserId = req.user ? req.user.id : null;
 
   try {
-    // Subquery: get each user's best attempt per mode
-    let bestPerUserSql = `
+    // Step 1: Find each user's best attempt ID per mode
+    let bestIdsSql = `
+      SELECT MIN(qa.id) AS best_id
+      FROM quiz_attempts qa
+      INNER JOIN (
+        SELECT user_id, mode, MAX(score) AS max_score
+        FROM quiz_attempts
+        GROUP BY user_id, mode
+      ) AS best ON qa.user_id = best.user_id AND qa.mode = best.mode AND qa.score = best.max_score
+    `;
+    const bestIdsParams = [];
+    if (mode && ['rapid_fire', 'trivia', 'predictor'].includes(mode)) {
+      bestIdsSql += ' WHERE qa.mode = ?';
+      bestIdsParams.push(mode);
+    }
+    bestIdsSql += ' GROUP BY qa.user_id, qa.mode';
+
+    // Step 2: Get full details for best attempts, ranked by score
+    let sql = `
       SELECT
         qa.id AS attempt_id,
         qa.user_id,
@@ -58,70 +75,46 @@ router.get('/leaderboard', optionalAuth, async (req, res) => {
         qa.time_taken,
         qa.difficulty,
         qa.created_at,
-        ROW_NUMBER() OVER (
-          PARTITION BY qa.user_id, qa.mode
-          ORDER BY qa.score DESC, qa.time_taken ASC, qa.created_at ASC
-        ) AS rn
+        (
+          SELECT COUNT(DISTINCT sub.user_id)
+          FROM (
+            SELECT qa2.user_id, qa2.mode, MAX(qa2.score) AS best_score
+            FROM quiz_attempts qa2
+            GROUP BY qa2.user_id, qa2.mode
+          ) AS sub
+          WHERE sub.mode = qa.mode AND sub.best_score > qa.score
+        ) + 1 AS rank_position
       FROM quiz_attempts qa
       JOIN users u ON qa.user_id = u.id
-    `;
-    const bestParams = [];
-
-    if (mode && ['rapid_fire', 'trivia', 'predictor'].includes(mode)) {
-      bestPerUserSql += ' WHERE qa.mode = ?';
-      bestParams.push(mode);
-    }
-
-    let sql = `
-      SELECT
-        best.*,
-        (
-          SELECT COUNT(*) + 1
-          FROM (
-            SELECT user_id, mode, MAX(score) AS best_score
-            FROM quiz_attempts
-            ${mode ? 'WHERE mode = ?' : ''}
-            GROUP BY user_id, mode
-          ) AS other_best
-          WHERE other_best.mode = best.mode AND other_best.best_score > best.score
-        ) AS rank_position
-      FROM (
-        ${bestPerUserSql}
-      ) AS best
-      WHERE best.rn = 1
-      ORDER BY best.score DESC, best.time_taken ASC, best.created_at ASC
+      WHERE qa.id IN (${bestIdsSql})
+      ORDER BY qa.score DESC, qa.time_taken ASC, qa.created_at ASC
       LIMIT ?;
     `;
-    const params = [...bestParams];
-    if (mode && ['rapid_fire', 'trivia', 'predictor'].includes(mode)) {
-      params.push(mode);
-    }
-    params.push(limit);
+    const params = [...bestIdsParams, limit];
 
     const leaderboard = await query(sql, params);
 
-    // Find current user's best rank across all modes (or filtered mode)
+    // Find current user's best rank
     let currentUserRank = null;
     if (currentUserId) {
       let rankSql = `
-        SELECT MIN(rank_pos) AS best_rank FROM (
-          SELECT
-            qa.score,
-            (
-              SELECT COUNT(*) + 1
-              FROM (
-                SELECT user_id, mode, MAX(score) AS best_score
-                FROM quiz_attempts
-                ${mode ? 'WHERE mode = ?' : ''}
-                GROUP BY user_id, mode
-              ) AS other_best
-              WHERE other_best.mode = qa.mode AND other_best.best_score > qa.score
-            ) AS rank_pos
-          FROM quiz_attempts qa
-          WHERE qa.user_id = ?
-        ) AS ranks;
+        SELECT MIN(
+          (SELECT COUNT(DISTINCT sub.user_id)
+           FROM (
+             SELECT qa2.user_id, qa2.mode, MAX(qa2.score) AS best_score
+             FROM quiz_attempts qa2
+             GROUP BY qa2.user_id, qa2.mode
+           ) AS sub
+           WHERE sub.mode = qa.mode AND sub.best_score > qa.score) + 1
+        ) AS best_rank
+        FROM quiz_attempts qa
+        WHERE qa.user_id = ?
       `;
-      const rankParams = mode ? [mode, currentUserId] : [currentUserId];
+      const rankParams = [currentUserId];
+      if (mode && ['rapid_fire', 'trivia', 'predictor'].includes(mode)) {
+        rankSql += ' AND qa.mode = ?';
+        rankParams.push(mode);
+      }
       const userBest = await query(rankSql, rankParams);
       if (userBest.length > 0 && userBest[0].best_rank !== null) {
         currentUserRank = userBest[0].best_rank;
