@@ -281,6 +281,22 @@ export default function Quiz() {
     const timeTaken = rfStartTimeRef.current ? Math.round((Date.now() - rfStartTimeRef.current) / 1000) : RAPID_FIRE_TIME;
     const finalScore = rfScoreRef.current;
     const finalCorrect = rfCorrectRef.current;
+    const totalQ = rfQuestions.length;
+
+    // Save to localStorage for My Scores tab
+    const entry = {
+      id: Date.now(),
+      category: 'rapid_fire',
+      score: finalScore,
+      correct: finalCorrect,
+      total: totalQ,
+      date: new Date().toISOString()
+    };
+    setScores(prev => {
+      const updated = [...prev, entry];
+      saveScores(updated);
+      return updated;
+    });
 
     if (token) {
       setRfSaving(true);
@@ -294,7 +310,7 @@ export default function Quiz() {
           mode: 'rapid_fire',
           score: finalScore,
           correctCount: finalCorrect,
-          totalQuestions: rfQuestions.length,
+          totalQuestions: totalQ,
           timeTaken,
           difficulty: 'mixed'
         })
@@ -1090,13 +1106,16 @@ export default function Quiz() {
                             padding: '0.2rem 0.6rem', borderRadius: 'var(--radius-sm)',
                             fontSize: '0.8rem', fontWeight: 600,
                             background: s.category === 'prediction' ? 'rgba(255, 109, 0, 0.12)' :
+                                       s.category === 'rapid_fire' ? 'rgba(255, 59, 48, 0.12)' :
                                        s.category === 'all' ? 'rgba(212, 175, 55, 0.12)' :
                                        `rgba(${categoryColors[s.category] || 'var(--color-gold)'}, 0.12)`,
                             color: s.category === 'prediction' ? 'var(--color-orange)' :
+                                  s.category === 'rapid_fire' ? 'var(--color-red)' :
                                   s.category === 'all' ? 'var(--color-gold)' :
                                   categoryColors[s.category] || 'var(--color-gold)'
                           }}>
                             {s.category === 'prediction' ? 'Predictor' :
+                             s.category === 'rapid_fire' ? 'Rapid Fire' :
                              s.category === 'all' ? 'Random Quiz' :
                              triviaCategories.find(c => c.id === s.category)?.name || s.category}
                           </span>
