@@ -1,16 +1,6 @@
-const mysql = require('mysql2/promise');
 const path = require('path');
-
 try { require('dotenv').config({ path: path.join(__dirname, '../server/.env') }); } catch(e) {}
-
-const dbConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'tactiq',
-  multipleStatements: true,
-};
+const { pool } = require('../server/db');
 
 function mulberry32(seed) {
   return function() {
@@ -43,9 +33,8 @@ function selectStarters(players) {
 }
 
 async function backfill() {
-  const conn = await mysql.createConnection(dbConfig);
   try {
-    const [matches] = await conn.query(
+    const [matches] = await pool.query(
       "SELECT id, home_team_id, away_team_id, home_score, away_score FROM matches WHERE status = 'COMPLETED' AND home_score IS NOT NULL ORDER BY id"
     );
     console.log(`Found ${matches.length} completed matches to backfill`);
@@ -53,13 +42,13 @@ async function backfill() {
     for (const m of matches) {
       const rng = mulberry32(m.id * 7919);
 
-      await conn.query('DELETE FROM assists WHERE match_id = ?', [m.id]);
-      await conn.query('DELETE FROM goals WHERE match_id = ?', [m.id]);
-      await conn.query('DELETE FROM cards WHERE match_id = ?', [m.id]);
-      await conn.query('DELETE FROM player_match_stats WHERE match_id = ?', [m.id]);
+      await pool.query('DELETE FROM assists WHERE match_id = ?', [m.id]);
+      await pool.query('DELETE FROM goals WHERE match_id = ?', [m.id]);
+      await pool.query('DELETE FROM cards WHERE match_id = ?', [m.id]);
+      await pool.query('DELETE FROM player_match_stats WHERE match_id = ?', [m.id]);
 
-      const [homePlayers] = await conn.query('SELECT id, position FROM players WHERE team_id = ? ORDER BY id', [m.home_team_id]);
-      const [awayPlayers] = await conn.query('SELECT id, position FROM players WHERE team_id = ? ORDER BY id', [m.away_team_id]);
+      const [homePlayers] = await pool.query('SELECT id, position FROM players WHERE team_id = ? ORDER BY id', [m.home_team_id]);
+      const [awayPlayers] = await pool.query('SELECT id, position FROM players WHERE team_id = ? ORDER BY id', [m.away_team_id]);
 
       const homeStarters = selectStarters(homePlayers).map(p => ({ ...p, team_id: m.home_team_id }));
       const awayStarters = selectStarters(awayPlayers).map(p => ({ ...p, team_id: m.away_team_id }));
@@ -89,7 +78,7 @@ async function backfill() {
       goalEvents.sort((a, b) => a.minute - b.minute);
 
       for (const g of goalEvents) {
-        const [res] = await conn.query(
+        const [res] = await pool.query(
           'INSERT INTO goals (match_id, player_id, team_id, minute, own_goal) VALUES (?, ?, ?, ?, 0)',
           [m.id, g.scorer.id, g.team_id, g.minute]
         );
@@ -100,7 +89,7 @@ async function backfill() {
           if (assisters.length > 0) {
             const assister = assisters[Math.floor(rng() * assisters.length)];
             stats[assister.id].assists++;
-            await conn.query(
+            await pool.query(
               'INSERT INTO assists (match_id, player_id, goal_id, minute) VALUES (?, ?, ?, ?)',
               [m.id, assister.id, res.insertId, g.minute]
             );
@@ -122,7 +111,7 @@ async function backfill() {
       if (rng() < 0.25) {
         const p = allStarters[Math.floor(rng() * allStarters.length)];
         stats[p.id].yellow_cards = Math.min(2, stats[p.id].yellow_cards + 1);
-        await conn.query(
+        await pool.query(
           'INSERT INTO cards (match_id, player_id, team_id, card_type, minute) VALUES (?, ?, ?, ?, ?)',
           [m.id, p.id, p.team_id, 'YELLOW', Math.floor(rng() * 110) + 10]
         );
@@ -131,7 +120,7 @@ async function backfill() {
         const p = allStarters[Math.floor(rng() * allStarters.length)];
         if (stats[p.id].red_cards === 0) {
           stats[p.id].red_cards = 1;
-          await conn.query(
+          await pool.query(
             'INSERT INTO cards (match_id, player_id, team_id, card_type, minute) VALUES (?, ?, ?, ?, ?)',
             [m.id, p.id, p.team_id, 'RED', Math.floor(rng() * 110) + 10]
           );
@@ -140,18 +129,18 @@ async function backfill() {
 
       for (const p of allStarters) {
         const s = stats[p.id];
-        await conn.query(
+        await pool.query(
           'INSERT INTO player_match_stats (match_id, player_id, minutes_played, goals, assists, yellow_cards, red_cards, clean_sheet) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           [m.id, p.id, s.minutes_played, s.goals, s.assists, s.yellow_cards, s.red_cards, s.clean_sheet]
         );
       }
 
-      await conn.query('CALL calculate_fantasy_scores(?)', [m.id]);
+      await pool.query('CALL calculate_fantasy_scores(?)', [m.id]);
       console.log(` Match ${m.id} (${m.home_team_id} vs ${m.away_team_id} ${m.home_score}-${m.away_score}) done`);
     }
 
     console.log('\n--- Verification: Fantasy Leaderboard ---');
-    const [leaderboard] = await conn.query(`
+    const [leaderboard] = await pool.query(`
       SELECT ft.team_name, u.username,
              COALESCE(SUM(pms.points), 0) AS total_points,
              COALESCE(
@@ -172,7 +161,7 @@ async function backfill() {
     console.table(leaderboard);
     console.log('Backfill complete!');
   } finally {
-    await conn.end();
+    await pool.end();
   }
 }
 
