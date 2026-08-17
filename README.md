@@ -1,7 +1,6 @@
 <div align="center">
 
 # ⚽ TactIQ
-<!-- test push -->
 
 ## FIFA World Cup 2026 Fan & Analytics Platform
 
