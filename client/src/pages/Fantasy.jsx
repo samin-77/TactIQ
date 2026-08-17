@@ -457,16 +457,14 @@ export default function Fantasy() {
                   <th>Manager</th>
                   <th>Team Name</th>
                   <th>Rating</th>
-                  <th>Total Points</th>
                   <th>Best Player</th>
-                  <th>Best Player Pts</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {leaderboard.length === 0 ? (
                   <tr>
-                    <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                       No fantasy teams yet. Be the first to create one!
                     </td>
                   </tr>
@@ -495,9 +493,7 @@ export default function Fantasy() {
                           {entry.squad_rating || 0}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 700, color: 'var(--color-gold)' }}>{entry.total_points}</td>
                       <td>{entry.best_player_name || 'N/A'}</td>
-                      <td>{entry.best_player_points || 0}</td>
                       <td>
                         <button
                           onClick={() => handleViewTeam(entry.fantasy_team_id)}
